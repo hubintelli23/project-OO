@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<!-- Project OO · index.html v1.1.0 -->
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="theme-color" content="#0b0f15" />
+  <meta name="version" content="1.1.0" />
+  <title>Project OO v1.1.0</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=Noto+Serif+KR:wght@600;900&display=swap" />
+  <link rel="stylesheet" href="css/style.css?v=1.1.0" />
+  <script type="importmap">
+    { "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js" } }
+  </script>
+</head>
+<body>
+  <canvas id="game"></canvas>
+
+  <!-- ================= 휴대폰 터치 조작 ================= -->
+  <div id="touch-ui">
+    <div id="joy-base"><div id="joy-knob"></div></div>
+    <div class="tb-anchor">
+      <div class="tb tb-attack" data-act="attack"><span>공격</span><small>길게 · 강공격</small></div>
+      <div class="tb tb-jump" data-act="key:Space"><span>점프</span></div>
+      <div class="tb tb-dodge" data-act="key:ShiftLeft"><span>회피</span></div>
+      <div class="tb tb-dash" data-act="dash"><span>대쉬</span></div>
+      <div class="tb tb-swap" data-act="key:Tab"><span>전환</span></div>
+    </div>
+    <div class="tb tb-menu" data-act="menu"><span>☰</span></div>
+  </div>
+
+  <!-- ================= HUD ================= -->
+  <div id="hud" class="hidden">
+    <div id="objective"></div>
+    <div id="buffs"></div>
+
+    <div id="boss">
+      <div id="boss-name"></div>
+      <div class="boss-bar"><i id="boss-hp"></i></div>
+      <div class="boss-bar guard"><i id="boss-guard"></i></div>
+    </div>
+
+    <div id="minimap-wrap" data-act="key:KeyM"><canvas id="minimap"></canvas><span class="mm-key"><kbd>M</kbd> 지도</span></div>
+    <div id="party"></div>
+
+    <div id="status">
+      <div class="st-top"><span id="hud-name"></span><span id="hud-power"></span></div>
+      <div class="hp-bar"><i id="hp-fill"></i><i id="hp-shield"></i><span id="hp-text"></span></div>
+      <div class="sub-bars">
+        <div class="ether"><label>에테르</label><div class="bar"><i id="ether-fill"></i></div></div>
+        <div class="power"><label id="power-stage">권능</label><div class="bar"><i id="power-fill"></i></div></div>
+      </div>
+    </div>
+
+    <div id="skills"></div>
+
+    <div id="crosshair"></div>
+    <div id="hold-ring"><svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="16" /></svg><span>강공격</span></div>
+    <div id="combo"><b id="combo-n">0</b><span>HITS</span></div>
+    <div id="prompt" data-act="key:KeyF"></div>
+    <div id="toasts"></div>
+    <div id="banner"></div>
+    <div id="enemy-bars"></div>
+    <div id="damage-numbers"></div>
+  </div>
+
+  <div id="screen-flash"></div>
+  <div id="ult-slash"></div>
+  <div id="cutin"></div>
+  <div id="fps"></div>
+
+  <!-- ================= 지도 ================= -->
+  <div id="map-overlay">
+    <div class="map-head"><b>지도</b> · 현계 아카데미 외곽 <span><kbd>M</kbd> 닫기</span></div>
+    <canvas id="map-canvas"></canvas>
+    <div class="map-legend">
+      <span><i style="background:#ff6b6b"></i>그믐 제단 세력</span>
+      <span><i style="background:#ff2244"></i>집행관</span>
+      <span><i style="background:#ffd36b"></i>보물 상자</span>
+      <span><i style="background:#5ef2c2"></i>아이템</span>
+    </div>
+  </div>
+
+  <!-- ================= 타이틀 ================= -->
+  <div id="title" class="overlay on">
+    <div class="title-inner">
+      <div class="t-sub">PROJECT</div>
+      <h1>OO</h1>
+      <div class="t-tag">액션 JRPG · 전투 체험판 <span data-version></span></div>
+      <div class="pick">
+        <div class="pick-label">주인공 선택 — 제 4 권능 · 심연의 신 에레보스</div>
+        <div class="gender">
+          <button data-g="m" class="on">카인 <small>남</small></button>
+          <button data-g="f">카일라 <small>여</small></button>
+        </div>
+      </div>
+      <div id="title-roster"></div>
+      <button id="btn-start" class="primary">전투 시작</button>
+      <div class="t-hint pc-only">클릭하면 마우스가 화면에 고정됩니다 · <kbd>Esc</kbd> 설정</div>
+      <div class="t-hint touch-only">왼쪽 화면: 이동 · 오른쪽 화면 드래그: 카메라 · ☰ 설정</div>
+      <details class="t-keys"><summary>조작키 보기</summary><div id="title-keys" class="keys"></div></details>
+    </div>
+  </div>
+
+  <!-- ================= 설정 (Esc) ================= -->
+  <div id="settings" class="overlay">
+    <div class="panel">
+      <div class="panel-head"><h2>설정</h2><span data-version></span></div>
+      <div class="panel-cols">
+        <div><h3>게임</h3><div id="settings-form"></div><button id="btn-reset-settings" class="ghost small">기본값</button>
+          <button id="btn-fullscreen" class="ghost small">전체화면 (Ctrl+W 탭 닫힘 방지)</button></div>
+        <div><h3>조작키</h3><div id="settings-keys" class="keys"></div></div>
+      </div>
+      <div class="panel-actions">
+        <button id="btn-resume" class="primary">계속하기</button>
+        <button id="btn-restart">처음부터</button>
+        <button id="btn-title" class="ghost">타이틀로</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="resume-overlay" class="overlay"><div class="resume-box">화면을 클릭하면 계속합니다</div></div>
+
+  <div id="gameover" class="overlay">
+    <div class="panel center"><h2>전투 불능</h2><p>파티 전원이 쓰러졌습니다.</p>
+      <div class="panel-actions"><button id="btn-over-retry" class="primary">다시 도전</button><button id="btn-over-title" class="ghost">타이틀로</button></div></div>
+  </div>
+
+  <div id="victory" class="overlay">
+    <div class="panel center"><h2>그믐 제단 격퇴</h2><p id="victory-info"></p>
+      <div class="panel-actions"><button id="btn-win-retry" class="primary">다시 하기</button><button id="btn-win-title" class="ghost">타이틀로</button></div></div>
+  </div>
+
+  <div id="rotate-hint"><div>📱↻</div><b>가로 모드로 돌려주세요</b><span>세로 화면에서는 조작 버튼이 가려집니다</span></div>
+
+  <div id="boot-error"></div>
+  <script>
+    window.addEventListener('error', function (e) {
+      var el = document.getElementById('boot-error');
+      el.textContent = '불러오기 오류: ' + (e.message || '스크립트를 불러오지 못했습니다') + ' — 인터넷 연결(three.js CDN)과 로컬 서버 실행 여부를 확인하세요.';
+      el.style.display = 'block';
+    });
+  </script>
+  <script type="module" src="js/main.js?v=1.1.0"></script>
+</body>
+</html>
