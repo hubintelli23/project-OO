@@ -8,13 +8,15 @@ import { TouchControls } from './core/touch.js';
 import { ThirdPersonCamera } from './core/camera.js';
 import { Sfx } from './core/audio.js';
 import { World } from './game/world.js';
-import { Effects } from './game/effects.js';
+import { Effects } from './assets/effects.js';
 import { Party } from './game/party.js';
 import { Enemy } from './game/enemy.js';
 import { Items } from './game/items.js';
 import { Hud } from './ui/hud.js';
 import { MapView } from './ui/map.js';
 import { Menu } from './ui/menu.js';
+import { MasterMode } from './debug/master.js';
+import { Codex } from './ui/codex.js';
 import { CAMPS, BOSS_ARENA } from './data/enemies.js';
 
 class Game {
@@ -53,6 +55,8 @@ class Game {
     this.menu = new Menu(this);
     this.menu.apply();
     this.touch = new TouchControls(this);
+    this.master = new MasterMode(this);
+    this.codex = new Codex(this);
     if (this.input.touchMode) {
       this.world.sun.shadow.mapSize.set(1024, 1024);
       this.scene.fog.far = 130;
@@ -88,7 +92,7 @@ class Game {
     this.state = 'play';
     this.input.requestLock();
     this.hud.banner('그믐 제단의 습격', '아카데미 외곽에 그믐 제단 세력이 나타났다');
-    setTimeout(() => this.hud?.toast('좌클릭 공격 · 0.5초 홀딩 강공격 · Shift 회피 · 우클릭 대쉬', '#e8f4ff', 3.5), 1400);
+    setTimeout(() => this.hud?.toast('좌클릭 공격 · 0.3초 홀딩 강공격 · Shift 회피 · 우클릭 대쉬', '#e8f4ff', 3.5), 1400);
   }
 
   setupRun() {
@@ -138,6 +142,7 @@ class Game {
 
   onEnemyKilled(e) {
     this.items.dropFrom(e);
+    if (e.debug) return; // 마스터 모드로 소환한 적은 진행도에 포함하지 않음
     if (e.boss) {
       this.hud.banner('집행관 격파', '그믐 제단의 습격을 막아냈다');
       this.sfx.play('boss');
@@ -152,6 +157,7 @@ class Game {
         if (this.state === 'title') return;
         this.enemies.push(new Enemy(this, 'boss', BOSS_ARENA.x, BOSS_ARENA.z, new THREE.Vector3(BOSS_ARENA.x, 0, BOSS_ARENA.z)));
         this.hud.banner('그믐 제단 집행관 강림', '오르펠 네크리온 — 남쪽 원형 제단');
+        this.codex.markSeen('오르펠 네크리온');
         this.sfx.play('boss');
         this.updateObjective();
       }, 1500);
@@ -266,6 +272,7 @@ class Game {
     const input = this.input;
     input.update();
     this.touch.update();
+    this.master.update(input);
 
     if (this.state === 'title') {
       // 타이틀: 카메라 천천히 회전
@@ -292,7 +299,7 @@ class Game {
 
     const playing = this.state === 'play' && input.locked;
     if (playing) {
-      let dt = raw;
+      let dt = raw * this.master.timeScale;
       if (this.hitStopT > 0) { this.hitStopT -= raw; dt *= 0.06; }
       this.time += dt;
 
@@ -308,7 +315,8 @@ class Game {
 
       // 적 시간 (컷인 정지 / 완벽 회피 슬로우)
       let edt = dt;
-      if (this.freezeT > 0) { this.freezeT -= raw; edt = 0; }
+      if (this.master.flag('freezeAI')) edt = 0;
+      else if (this.freezeT > 0) { this.freezeT -= raw; edt = 0; }
       else if (this.slow.t > 0) { this.slow.t -= raw; edt *= this.slow.scale; }
       for (const e of this.enemies) e.update(edt);
       this.enemies = this.enemies.filter(e => !e.removed);

@@ -1,5 +1,5 @@
 /* =============================================================
-   Project OO — style.css v1.1.0
+   Project OO — style.css v1.3.1
    ============================================================= */
 :root {
   --bg: rgba(10, 14, 22, 0.62);
@@ -317,3 +317,100 @@ body.touch .map-head span::after { content: ' · 화면을 탭해 닫기'; }
 @media (orientation: portrait) {
   body.touch #rotate-hint { display: flex; }
 }
+
+/* =============================================================
+   마스터 모드 (테스트) · 업데이트 내역 — v1.2.0
+   ============================================================= */
+#master-panel { position: fixed; left: calc(10px + env(safe-area-inset-left)); top: 50%; transform: translateY(-50%); width: 250px; max-height: 92vh; overflow: auto; z-index: 60; display: none;
+  background: rgba(20,16,4,.9); border: 1px solid #ffe14d; border-radius: 8px; font-size: 12px; box-shadow: 0 0 24px rgba(255,225,77,.25); }
+#master-panel.on { display: block; }
+.ms-head { display: flex; align-items: center; gap: 6px; padding: 8px 10px; background: #ffe14d; color: #1a1500; position: sticky; top: 0; }
+.ms-head b { letter-spacing: .12em; }
+.ms-sub { font-size: 10px; flex: 1; }
+.ms-sub kbd { color: #1a1500; border-color: #1a1500; background: transparent; }
+.ms-fold { padding: 0 8px; background: transparent; border-color: #1a1500; color: #1a1500; }
+#master-panel.folded .ms-body { display: none; }
+.ms-body { padding: 6px 10px 10px; }
+.ms-sec { margin: 8px 0 4px; font-size: 10px; letter-spacing: .1em; color: #ffe14d; }
+.ms-body button { padding: 5px 8px; font-size: 11px; border-radius: 4px; }
+.ms-t { display: flex; width: 100%; align-items: center; gap: 6px; margin-bottom: 3px; text-align: left; }
+.ms-t.act { background: rgba(255,225,77,.3); border-color: #ffe14d; }
+.ms-t.act::after { content: 'ON'; margin-left: auto; color: #ffe14d; font-weight: 900; }
+.ms-t kbd { min-width: 16px; padding: 0 4px; }
+.ms-row { display: flex; gap: 4px; flex-wrap: wrap; align-items: center; margin-bottom: 4px; }
+.ms-row select { flex: 1; background: #111; color: #fff; border: 1px solid var(--line); border-radius: 4px; padding: 4px; font: 12px var(--font); }
+.ms-l { font-size: 10px; color: var(--dim); width: 34px; }
+.ms-info { margin: 0; font: 10px/1.5 ui-monospace, monospace; color: #e8f0d0; white-space: pre-wrap; }
+body.master canvas#game { outline: 3px solid rgba(255,225,77,.6); outline-offset: -3px; }
+body.master #hud::before { content: 'MASTER MODE'; position: absolute; left: 50%; bottom: 4px; transform: translateX(-50%); font: 900 10px var(--font); letter-spacing: .3em; color: #ffe14d; }
+body.master .overlay .panel { margin-left: 260px; }
+body.touch #master-panel { width: 210px; top: calc(56px + env(safe-area-inset-top)); transform: none; max-height: calc(100vh - 70px); }
+body.touch.master .overlay .panel { margin-left: 220px; }
+#settings [data-version] { cursor: pointer; }
+
+#updates .panel { max-width: 680px; }
+#updates-list { margin-top: 14px; display: grid; gap: 14px; }
+.up { border-left: 3px solid var(--teal); padding: 4px 0 4px 12px; }
+.up-h { display: flex; gap: 10px; align-items: baseline; margin-bottom: 6px; }
+.up-h b { font-size: 16px; }
+.up-h span { font-size: 11px; color: var(--dim); }
+.up-h em { font-style: normal; font-size: 13px; color: #ffd36b; }
+.up-c { font-size: 13px; padding: 3px 0; display: flex; gap: 8px; flex-wrap: wrap; align-items: baseline; }
+.up-c small { width: 100%; padding-left: 52px; font-size: 10px; color: var(--dim); }
+.tag { font-style: normal; font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 3px; min-width: 44px; text-align: center; background: #2a3442; }
+.tag-추가 { background: #1d5c4a; } .tag-변경 { background: #2f4a7a; } .tag-수정 { background: #6b3a2a; } .tag-분리 { background: #5a3f7a; }
+.dim { color: var(--dim); font-size: 13px; }
+
+/* =============================================================
+   세계관 도감 — v1.3.0
+   ============================================================= */
+.t-codex { margin-left: 8px; padding: 14px 22px; }
+.cx-panel { width: min(980px, 94vw); display: flex; flex-direction: column; }
+.cx-tabs { display: flex; gap: 6px; margin-top: 14px; }
+.cx-tabs button.on, .cx-filters button.on { background: rgba(31,181,168,.35); border-color: var(--teal); }
+.cx-filters { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px; }
+.cx-filters button { padding: 4px 9px; font-size: 11px; }
+.cx-filters:empty { display: none; }
+.cx-body { display: grid; grid-template-columns: 240px 1fr; gap: 16px; margin-top: 12px; min-height: 0; height: min(52vh, 460px); }
+.cx-list { overflow: auto; border-right: 1px solid var(--line); padding-right: 8px; }
+.cx-item { display: flex; align-items: center; gap: 8px; padding: 7px 8px; border-radius: 5px; cursor: pointer; font-size: 13px; }
+.cx-item:hover { background: rgba(255,255,255,.06); }
+.cx-item.on { background: rgba(31,181,168,.22); }
+.cx-item em { font-style: normal; font-size: 10px; padding: 1px 5px; border-radius: 3px; background: #2f4a7a; margin-left: auto; }
+.cx-item em.seen { background: #4a3a7a; margin-left: 4px; }
+.cx-item em + em.seen { margin-left: 4px; }
+.cx-dot { width: 9px; height: 9px; border-radius: 50%; flex: none; }
+.cx-sec { font-size: 10px; letter-spacing: .1em; color: var(--dim); margin: 10px 0 2px 4px; }
+.cx-detail { overflow: auto; padding-right: 6px; }
+.cx-h small { font-size: 11px; color: var(--teal); letter-spacing: .1em; }
+.cx-h h3 { margin: 2px 0 0; font: 900 24px var(--serif); }
+.cx-en { font-size: 12px; color: var(--dim); }
+.cx-row { display: flex; gap: 6px; flex-wrap: wrap; margin: 10px 0; }
+.cx-chip { --c: #fff; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 10px; border: 1px solid var(--c); color: var(--c); background: color-mix(in srgb, var(--c) 14%, transparent); }
+.cx-tag { font-size: 11px; padding: 2px 8px; border-radius: 10px; background: #2f4a7a; }
+.cx-quote { margin: 12px 0; padding: 10px 14px; border-left: 3px solid var(--teal); background: rgba(255,255,255,.04); font-size: 14px; line-height: 1.6; }
+.cx-dim { font-size: 12px; color: var(--dim); }
+.cx-dl { display: grid; grid-template-columns: 70px 1fr; gap: 8px 12px; font-size: 13px; margin: 12px 0; }
+.cx-dl dt { color: var(--dim); }
+.cx-dl dd { margin: 0; }
+.cx-members { display: grid; gap: 6px; margin-top: 14px; }
+.cx-mem { display: flex; gap: 10px; align-items: center; padding: 8px 10px; background: rgba(255,255,255,.04); border-radius: 6px; font-size: 13px; }
+.cx-mem span { color: var(--dim); font-size: 12px; flex: 1; }
+body.touch .cx-body { grid-template-columns: 170px 1fr; height: 56vh; }
+body.touch .cx-h h3 { font-size: 18px; }
+body.touch .t-codex { padding: 12px 16px; }
+
+/* 도감 — 전투 시스템 탭 (v1.4.0) */
+.cx-sect { margin: 14px 0 6px; }
+.cx-sect h4 { margin: 0 0 6px; font: 700 14px var(--serif); color: var(--teal); }
+.cx-sub { margin: 10px 0 4px; font-size: 12px; color: #c9b8ff; letter-spacing: .04em; }
+.cx-p { margin: 4px 0; font-size: 13px; line-height: 1.6; }
+.cx-li { position: relative; margin: 2px 0; padding-left: 14px; font-size: 13px; line-height: 1.5; }
+.cx-li::before { content: ''; position: absolute; left: 3px; top: .62em; width: 4px; height: 4px; border-radius: 50%; background: var(--dim); }
+.cx-kv { display: flex; gap: 8px; margin: 2px 0; padding-left: 14px; font-size: 13px; line-height: 1.5; }
+.cx-kv b { flex: none; min-width: 7.5em; font-weight: 700; }
+.cx-kv span { color: #d8dee9; }
+.cx-p.tent, .cx-li.tent, .cx-kv.tent { border-left: 2px solid #d9a441; background: rgba(217,164,65,.08); border-radius: 0 4px 4px 0; padding-left: 10px; }
+.cx-li.tent::before { display: none; }
+.cx-tent-tag { font-size: 10px; padding: 1px 6px; border-radius: 3px; background: #7a5a1f; color: #ffe2a8; }
+body.touch .cx-kv { flex-direction: column; gap: 0; }

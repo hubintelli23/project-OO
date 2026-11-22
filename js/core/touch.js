@@ -4,7 +4,7 @@
 //
 //   왼쪽 화면 누르기     : 이동 조이스틱 (누른 자리에 생성)
 //   오른쪽 화면 드래그   : 카메라 회전
-//   공격 버튼 탭 / 0.5초 : 공격 / 강공격
+//   공격 버튼 탭 / 0.3초 : 공격 / 강공격
 //   공중에서 공격 탭     : 점프 공격,  공중에서 공격 길게(0.25초) : 점프 강공격
 // =============================================================
 const AIR_HEAVY_HOLD = 0.25;
@@ -51,8 +51,8 @@ export class TouchControls {
         this.press(btn, t);
         continue;
       }
-      // 오버레이/버튼이 아닌 게임 화면만 처리
-      if (el && el.closest('.overlay, #map-overlay')) continue;
+      // 오버레이/마스터 패널은 일반 터치(클릭)로 두고 게임 화면만 처리
+      if (el && el.closest('.overlay, #map-overlay, #master-panel')) continue;
       handled = true;
       if (t.clientX < innerWidth * 0.42 && ![...this.touches.values()].some(v => v.kind === 'joy')) {
         this.touches.set(t.identifier, { kind: 'joy', ox: t.clientX, oy: t.clientY });

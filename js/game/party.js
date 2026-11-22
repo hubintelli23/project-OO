@@ -7,7 +7,7 @@ import * as THREE from 'three';
 import { COMBAT, MOVE, PHYS, KEYS } from '../config.js';
 import { CHARACTERS, PARTY_ORDER } from '../data/characters.js';
 import { POWERS, powerColor } from '../data/powers.js';
-import { buildHumanoid, poseRig, flashRig } from './models.js';
+import { buildAvatar, poseRig, flashRig } from '../assets/avatars.js';
 import { playerHit } from './combat.js';
 import { turnToward, clamp, angleDiff } from '../core/utils.js';
 
@@ -23,9 +23,7 @@ export class Party {
     const hasRia = PARTY_ORDER.includes('ria');
     this.members = PARTY_ORDER.map(id => {
       const def = CHARACTERS[id];
-      const look = { ...def.look };
-      if (id === 'kain' && gender === 'f') look.longHair = true;
-      const rig = buildHumanoid(look, { weapon: def.weapon });
+      const rig = buildAvatar(id === 'kain' && gender === 'f' ? 'kaila' : (def.avatar ?? id));
       rig.root.visible = false;
       G.scene.add(rig.root);
       const maxHp = Math.round(def.stats.hp * (hasRia ? 1.15 : 1)); // 리아 패시브: 파티 최대 체력 +15%
@@ -552,6 +550,7 @@ export class Party {
     const G = this.G;
     const ch = this.active;
     const a = this.action;
+    if (G.master?.flag('god')) return; // 마스터 모드: 무적
     // 완벽 회피
     if ((a?.kind === 'dodge' || a?.kind === 'dash') && this.invuln > 0) {
       if (!this.perfectUsed && G.time - this.dodgeStart <= MOVE.perfectWindow + 0.12) this.perfectDodge(source);

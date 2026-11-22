@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Project OO · index.html v1.1.0 -->
+<!-- Project OO · index.html v1.4.1 -->
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
@@ -7,13 +7,16 @@
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="theme-color" content="#0b0f15" />
-  <meta name="version" content="1.1.0" />
-  <title>Project OO v1.1.0</title>
+  <meta name="version" content="1.4.1" />
+  <title>Project OO v1.4.1</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=Noto+Serif+KR:wght@600;900&display=swap" />
-  <link rel="stylesheet" href="css/style.css?v=1.1.0" />
+  <link rel="stylesheet" href="css/style.css?v=1.4.1" />
   <script type="importmap">
-    { "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js" } }
+    { "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+    } }
   </script>
 </head>
 <body>
@@ -72,6 +75,9 @@
   <div id="cutin"></div>
   <div id="fps"></div>
 
+  <!-- ================= 마스터 모드 (테스트) ================= -->
+  <div id="master-panel"></div>
+
   <!-- ================= 지도 ================= -->
   <div id="map-overlay">
     <div class="map-head"><b>지도</b> · 현계 아카데미 외곽 <span><kbd>M</kbd> 닫기</span></div>
@@ -99,6 +105,7 @@
       </div>
       <div id="title-roster"></div>
       <button id="btn-start" class="primary">전투 시작</button>
+      <button class="ghost t-codex" data-open-codex>세계관 도감</button>
       <div class="t-hint pc-only">클릭하면 마우스가 화면에 고정됩니다 · <kbd>Esc</kbd> 설정</div>
       <div class="t-hint touch-only">왼쪽 화면: 이동 · 오른쪽 화면 드래그: 카메라 · ☰ 설정</div>
       <details class="t-keys"><summary>조작키 보기</summary><div id="title-keys" class="keys"></div></details>
@@ -118,7 +125,27 @@
         <button id="btn-resume" class="primary">계속하기</button>
         <button id="btn-restart">처음부터</button>
         <button id="btn-title" class="ghost">타이틀로</button>
+        <button class="ghost" data-open-codex>세계관 도감</button>
+        <button id="btn-updates" class="ghost">업데이트 내역</button>
       </div>
+    </div>
+  </div>
+
+  <div id="updates" class="overlay">
+    <div class="panel">
+      <div class="panel-head"><h2>업데이트 내역</h2><span data-version></span></div>
+      <div id="updates-list"><p class="dim">불러오는 중…</p></div>
+      <div class="panel-actions"><button id="btn-updates-close" class="primary">닫기</button></div>
+    </div>
+  </div>
+
+  <div id="codex" class="overlay">
+    <div class="panel cx-panel">
+      <div class="panel-head"><h2>세계관 도감</h2><span>project OO 기획서 기준</span></div>
+      <div class="cx-tabs"><button data-tab="people">인물</button><button data-tab="gods">신</button><button data-tab="factions">세력</button><button data-tab="terms">용어</button><button data-tab="combat">전투 시스템</button></div>
+      <div id="codex-filters" class="cx-filters"></div>
+      <div class="cx-body"><div id="codex-list" class="cx-list"></div><div id="codex-detail" class="cx-detail"></div></div>
+      <div class="panel-actions"><button id="btn-codex-close" class="primary">닫기</button></div>
     </div>
   </div>
 
@@ -144,6 +171,6 @@
       el.style.display = 'block';
     });
   </script>
-  <script type="module" src="js/main.js?v=1.1.0"></script>
+  <script type="module" src="js/main.js?v=1.4.1"></script>
 </body>
 </html>

@@ -55,6 +55,8 @@ export function queryEnemies(G, shape, origin, facing, hit, pathFrom) {
 export function playerHit(G, ch, hit, origin, facing, pathFrom) {
   const P = G.party;
   const targets = queryEnemies(G, hit.shape, origin, facing, hit, pathFrom);
+  if (G.master?.flag('hitbox')) G.fx.debugShape(hit.shape, origin, facing, hit, pathFrom);
+  const oneHit = G.master?.flag('oneHit');
   const stage = P.powerStage(ch);
   const color = powerColor(ch.def.power, stage);
   let landed = 0;
@@ -66,6 +68,7 @@ export function playerHit(G, ch, hit, origin, facing, pathFrom) {
     const crit = Math.random() < critRate;
     const atkBuff = (P.buffs.atk > 0 ? 1.2 : 1) * (stage === 2 ? 1.15 : 1);
     const dmg = ch.def.stats.atk * hit.dmg * atkBuff * (crit ? 1.65 : 1) * (0.92 + Math.random() * 0.16);
+    if (oneHit) { e.takeHit({ dmg: 1e9, guard: 1e9, from: origin, facing, ignoreGuard: true, kb: hit.kb, kbPow: hit.kbPow ?? 0 }); landed++; continue; }
     const guard = (hit.guard ?? 0) * (ch.def.passive.guardMul ?? 1) * (ch.def.power === 2 ? 1.25 : 1);
     const res = e.takeHit({
       dmg, guard, kb: hit.kb, kbPow: hit.kbPow ?? 0, from: origin, facing,

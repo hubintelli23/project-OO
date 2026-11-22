@@ -115,7 +115,7 @@ export class Input {
     if (isDown) { if (!this.down.has(code)) this.pressed.add(code); this.down.add(code); }
     else { this.down.delete(code); this.released.add(code); }
   }
-  /** 공격 버튼 누름 (마우스 좌클릭과 동일 — 0.5초 홀딩 시 강공격) */
+  /** 공격 버튼 누름 (마우스 좌클릭과 동일 — 0.3초 홀딩 시 강공격) */
   virtualLeft(isDown, ctrl = false) {
     if (isDown) {
       if (!this.locked) return;
@@ -133,7 +133,7 @@ export class Input {
   consumeLeft() { this.left.consumed = true; }
 
   update() {
-    // 홀딩 0.5초 도달 즉시 강공격 이벤트
+    // 홀딩 0.3초 도달 즉시 강공격 이벤트
     const L = this.left;
     if (L.held && !L.consumed && !L.heavyFired) {
       const held = (performance.now() - L.start) / 1000;

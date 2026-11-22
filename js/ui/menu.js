@@ -116,6 +116,8 @@ export class Menu {
       this.buildForm();
       this.apply();
     });
+    $('btn-updates').addEventListener('click', () => this.showUpdates());
+    $('btn-updates-close').addEventListener('click', () => $('updates').classList.remove('on'));
     $('btn-fullscreen').addEventListener('click', async () => {
       try {
         if (!document.fullscreenElement) {
@@ -144,6 +146,23 @@ export class Menu {
     G.world.sun.castShadow = s.shadows;
     $('fps').style.display = s.showFps ? 'block' : 'none';
     storageSet(SETTINGS_KEY, s);
+  }
+
+  /** updates.json 을 읽어 업데이트 내역 표시 */
+  async showUpdates() {
+    const box = $('updates-list');
+    $('updates').classList.add('on');
+    try {
+      const res = await fetch(`updates.json?v=${VERSION}`, { cache: 'no-store' });
+      const data = await res.json();
+      box.innerHTML = data.updates.map(u => `
+        <div class="up">
+          <div class="up-h"><b>v${u.version}</b><span>${u.date}</span><em>${u.title}</em></div>
+          ${u.changes.map(c => `<div class="up-c"><i class="tag tag-${c.type}">${c.type}</i>${c.text}${c.files ? `<small>${c.files.join(', ')}</small>` : ''}</div>`).join('')}
+        </div>`).join('');
+    } catch (e) {
+      box.innerHTML = '<p class="dim">updates.json 을 불러오지 못했습니다 (로컬 서버 또는 GitHub Pages에서 열어주세요).</p>';
+    }
   }
 
   showSettings(on) { $('settings').classList.toggle('on', on); }

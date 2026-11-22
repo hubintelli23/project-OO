@@ -4,7 +4,7 @@
 import * as THREE from 'three';
 import { COMBAT, PHYS } from '../config.js';
 import { ENEMIES } from '../data/enemies.js';
-import { buildHumanoid, poseRig, flashRig, setRigOpacity } from './models.js';
+import { buildAvatar, poseRig, flashRig, setRigOpacity } from '../assets/avatars.js';
 import { angleDiff, turnToward, rand, clamp } from '../core/utils.js';
 
 let UID = 1;
@@ -40,8 +40,7 @@ export class Enemy {
     this.aggro = false;
     this.phase = 0;
 
-    const look = { outfit: d.color, accent: d.accent, pants: 0x111115, skin: 0x9a8f99, eye: d.accent, hair: d.color, blade: 0xbbbbcc, shoes: 0x0b0b0d };
-    this.rig = buildHumanoid(look, { weapon: d.weapon, hood: true, glowEyes: true, scale: d.scale, cape: this.boss });
+    this.rig = buildAvatar(d.avatar ?? type);
     this.rig.root.position.copy(this.pos);
     G.scene.add(this.rig.root);
 
@@ -320,6 +319,7 @@ export class Enemy {
       inside = Math.abs(angleDiff(this.facing, Math.atan2(dx, dz))) <= (a.arc / 2) * Math.PI / 180 + 0.15;
     }
     if (G.party.pos.y > 1.6 && a.shape !== 'circle') inside = false; // 점프로 회피 가능
+    if (G.master?.flag('hitbox')) G.fx.debugShape(a.shape === 'circle' ? 'circle' : 'arc', this.pos, this.facing, { range: a.range, arc: a.arc ?? 360 }, null, 0xff3b3b);
     const fxColor = this.boss ? (this.phase2 ? 0xff1133 : 0x8a1328) : 0xa03a5a;
     if (a.shape === 'circle') G.fx.wave(this.pos, fxColor, a.range, 0.4);
     else G.fx.slash(this.center(), this.facing, fxColor, { tilt: this.boss ? 1.4 : 0.1, radius: a.range * 0.8, len: a.arc });

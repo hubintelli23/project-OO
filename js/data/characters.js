@@ -21,11 +21,8 @@ export const CHARACTERS = {
     name: '카인', nameF: '카일라',
     title: '신폐자 · 경계의 동반자',
     role: '메인 딜러', slot: 1, power: 4,
+    avatar: 'kain', // 외형·무기 모델: js/assets/avatars.js (여성 주인공은 'kaila')
     weapon: 'katana', weaponName: '카타나 (도검 계열)',
-    look: {
-      hair: 0xc5c9d0, outfit: 0x15171b, accent: 0x1fb5a8, pants: 0x101114,
-      shoes: 0x1fb5a8, skin: 0xf1d9c8, eye: 0xf3ead0, blade: 0xd8dde6,
-    },
     stats: { hp: 1250, atk: 110, def: 40, speed: 7.2 },
     passive: { name: '신폐자의 집념', desc: '방막 피해 +20%. 4타·강공격 적중 시 권능 게이지 회복.', guardMul: 1.2 },
     combo: [
@@ -69,11 +66,8 @@ export const CHARACTERS = {
     name: '시엔 벨라토르', short: '시엔',
     title: '길잡이 · 학생회장',
     role: '서브 딜러', slot: 2, power: 5,
+    avatar: 'sien',
     weapon: 'dual', weaponName: '쌍검 / 아크 카타나',
-    look: {
-      hair: 0x2c2f6b, outfit: 0x1d2333, accent: 0x00b3ae, pants: 0x161a26,
-      shoes: 0xfff3a0, skin: 0xf3dccd, eye: 0x00b3ae, blade: 0xbfeff0, longHair: true,
-    },
     stats: { hp: 1050, atk: 98, def: 30, speed: 7.9 },
     passive: { name: '초월자의 궤적', desc: '스킬 사용 후 이동 속도 +20%. 잔영으로 피격 확률 감소.' },
     combo: [
@@ -116,11 +110,8 @@ export const CHARACTERS = {
     name: '리아 폰 에스더', short: '리아',
     title: '소꿉친구 · 공명형 방어기사',
     role: '서포터', slot: 3, power: 3,
+    avatar: 'ria',
     weapon: 'swordShield', weaponName: '한손검 & 신성 소형 방패',
-    look: {
-      hair: 0xe8b7a0, outfit: 0xf2ece6, accent: 0x5ef2c2, pants: 0x3a3f55,
-      shoes: 0xff8fb1, skin: 0xf6e0d2, eye: 0x5ef2c2, blade: 0xf5f0ff, longHair: true, ponytail: true,
-    },
     stats: { hp: 1400, atk: 82, def: 60, speed: 6.9 },
     passive: { name: '온기의 결속', desc: '필드에 있을 때 파티 HP를 지속 회복.', regen: 0.01 },
     combo: [

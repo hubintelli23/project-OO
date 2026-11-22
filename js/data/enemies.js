@@ -1,11 +1,11 @@
 // =============================================================
 //  적 데이터 — 그믐 제단 (신성제단의 흑막 / 이단자)
 //  guard = 1권능 신성 방막 게이지. 0이 되면 그로기.
+//  외형·무기 모델은 js/assets/avatars.js 의 같은 id 항목
 // =============================================================
 export const ENEMIES = {
   zealot: {
     name: '그믐 제단 신도', hp: 1100, guard: 140, atk: 70, speed: 4.2, radius: 0.55, scale: 1.0,
-    color: 0x2a2433, accent: 0x6b5a8a, weapon: 'spear',
     aggro: 20, attackRange: 2.6,
     attacks: [
       { name: '찌르기', windup: 0.75, range: 3.0, arc: 70, dmg: 1.0, shape: 'arc', recover: 0.8, lunge: 6 },
@@ -14,7 +14,6 @@ export const ENEMIES = {
   },
   hunter: {
     name: '그믐 제단 추적자', hp: 850, guard: 80, atk: 60, speed: 5.6, radius: 0.5, scale: 0.92,
-    color: 0x1f2a2e, accent: 0x3f8f87, weapon: 'dagger',
     aggro: 24, attackRange: 6,
     attacks: [
       { name: '도약 습격', windup: 0.6, range: 2.4, arc: 360, dmg: 1.1, shape: 'circle', recover: 0.9, leap: 9 },
@@ -22,15 +21,13 @@ export const ENEMIES = {
   },
   caster: {
     name: '그믐 제단 주술사', hp: 750, guard: 100, atk: 55, speed: 3.4, radius: 0.5, scale: 0.95,
-    color: 0x2b1f2a, accent: 0xa03a5a, weapon: 'staff',
     aggro: 26, attackRange: 16, keepDistance: 9,
     attacks: [
       { name: '흑월 탄', windup: 0.9, range: 18, dmg: 1.0, shape: 'projectile', recover: 1.4, speed: 16 },
     ],
   },
   boss: {
-    name: '그믐 제단 집행관 오르펠 네크리온', hp: 16000, guard: 900, atk: 95, speed: 4.6, radius: 1.2, scale: 1.9,
-    color: 0x141218, accent: 0x8a1328, weapon: 'greatsword', boss: true, superArmor: true,
+    name: '그믐 제단 집행관 오르펠 네크리온', hp: 16000, guard: 900, atk: 95, speed: 4.6, radius: 1.2, scale: 1.9, boss: true, superArmor: true,
     aggro: 60, attackRange: 4.5,
     attacks: [
       { name: '단죄 내려찍기', windup: 1.0, range: 5.2, arc: 90, dmg: 1.6, shape: 'arc', recover: 1.0, lunge: 7 },
