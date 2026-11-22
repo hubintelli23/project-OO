@@ -1,6 +1,6 @@
 // =============================================================
 //  플레이어블 캐릭터 데이터 (project OO 능력 체계 기준)
-//  파티: 1번 메인 딜러 / 2번 서브 딜러 / 3번 서포터
+//  파티: 플레이어가 ROSTER 중 3명을 자유롭게 편성 (기본: 카인·시엔·리아)
 //
 //  기술(move) 스키마
 //   dur        : 전체 동작 시간
@@ -11,6 +11,8 @@
 //   hits[]     : { t, shape:'arc'|'circle'|'line', range, arc, width, dmg, guard, kb, kbPow, fx }
 //   special    : 코드로 처리되는 고유 효과
 // =============================================================
+
+import { EXTRA_CHARACTERS } from './characters-extra.js';
 
 const slash = (tilt, radius = 2.4, len = 150, extra = {}) => ({ type: 'slash', tilt, radius, len, ...extra });
 
@@ -113,7 +115,7 @@ export const CHARACTERS = {
     avatar: 'ria',
     weapon: 'swordShield', weaponName: '한손검 & 신성 소형 방패',
     stats: { hp: 1400, atk: 82, def: 60, speed: 6.9 },
-    passive: { name: '온기의 결속', desc: '필드에 있을 때 파티 HP를 지속 회복.', regen: 0.01 },
+    passive: { name: '온기의 결속', desc: '파티 최대 체력 +15%. 필드에 있을 때 HP를 지속 회복.', regen: 0.01, partyHpMul: 0.15 },
     combo: [
       { name: '신성 수호 베기', dur: 0.42, cancelAt: 0.24, swing: 'diagR', swingAt: [0.05, 0.17], lunge: [5, 0.12],
         hits: [{ t: 0.14, shape: 'arc', range: 3.0, arc: 140, dmg: 0.9, guard: 8, fx: slash(-0.7, 2.2, 140) }] },
@@ -147,4 +149,11 @@ export const CHARACTERS = {
   },
 };
 
+// 문서의 추가 캐릭터 6명 합류
+Object.assign(CHARACTERS, EXTRA_CHARACTERS);
+
+/** 편성 화면에 나오는 순서 */
+export const ROSTER = ['kain', 'sien', 'ria', 'iris', 'charl', 'noa', 'cael', 'lucian', 'beatrice'];
+/** 기본 편성 (저장된 편성이 없을 때) */
 export const PARTY_ORDER = ['kain', 'sien', 'ria'];
+export const PARTY_SIZE = 3;

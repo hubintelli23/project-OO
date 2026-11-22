@@ -36,7 +36,7 @@ export class Enemy {
     this.deadT = 0;
     this.removed = false;
     this.phase2 = false;
-    this.debuffs = { slow: 0, defDown: 0, atkDown: 0 };
+    this.debuffs = { slow: 0, defDown: 0, atkDown: 0, bind: 0 };
     this.aggro = false;
     this.phase = 0;
 
@@ -113,7 +113,7 @@ export class Enemy {
       // 슈퍼아머: 경직 없이 살짝 밀림
       this.flash = 0.08;
     }
-    if (info.debuff) this.debuffs[info.debuff] = 5;
+    if (info.debuff) this.debuffs[info.debuff] = info.debuffDur ?? 5;
 
     let killed = false;
     if (this.hp <= 0) { this.hp = 0; this.die(); killed = true; }
@@ -190,6 +190,8 @@ export class Enemy {
         }
         case 'chase': {
           this.facing = turnToward(this.facing, toward, dt * 6);
+          // 속박(루시안·베아트리스) / 장막(노아): 이동·공격 시작 불가
+          if (this.debuffs.bind > 0 || (!this.boss && G.party.buffs.stealth > 0)) { this.timer = Math.max(this.timer, 0.2); break; }
           const kd = this.def.keepDistance;
           if (kd && dist < kd) speed = -this.def.speed * 0.6;
           else if (dist > this.def.attackRange * 0.85) speed = this.def.speed;

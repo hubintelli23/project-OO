@@ -38,7 +38,7 @@ export class Hud {
       const d = document.createElement('div');
       d.className = 'pm';
       d.innerHTML = `
-        <div class="pm-slot" style="border-color:${c}">${m.def.slot}</div>
+        <div class="pm-slot" style="border-color:${c}">${i + 1}</div>
         <div class="pm-body">
           <div class="pm-name">${m.name}<span class="pm-role">${m.def.role}</span></div>
           <div class="pm-bar"><i class="pm-hp"></i></div>

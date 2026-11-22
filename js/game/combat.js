@@ -60,19 +60,30 @@ export function playerHit(G, ch, hit, origin, facing, pathFrom) {
   const stage = P.powerStage(ch);
   const color = powerColor(ch.def.power, stage);
   let landed = 0;
+  const shieldAtkMul = ch.shield > 0 && P.members.some(m => m.alive && m.def.passive.shieldAtk) ? 1.15 : 1; // 샤를: 전술적 차단
+  const multiMul = hit.multiScale ? 1 + Math.min(0.5, 0.1 * (targets.length - 1)) : 1;                       // 베아트리스: 다수 제압
 
   for (const e of targets) {
     // 치명타 (제 5권능 상시 치명 보정, 제 2권능은 그로기 대상 치명 증폭)
     let critRate = 0.12 + (ch.def.power === 5 ? 0.1 : 0) + (P.buffs.crit > 0 ? 0.2 : 0);
     if (ch.def.power === 2 && e.groggy > 0) critRate += 0.4;
     const crit = Math.random() < critRate;
-    const atkBuff = (P.buffs.atk > 0 ? 1.2 : 1) * (stage === 2 ? 1.15 : 1);
-    const dmg = ch.def.stats.atk * hit.dmg * atkBuff * (crit ? 1.65 : 1) * (0.92 + Math.random() * 0.16);
+    const atkBuff = (P.buffs.atk > 0 ? 1.2 : 1) * (stage === 2 ? 1.15 : 1) * shieldAtkMul * multiMul;
+    let critMul = crit ? 1.65 : 1;
+    if (crit && ch.def.passive.farCrit) {           // 루시안: 거리가 멀수록 치명타 피해 증가 (최대 +25%)
+      const d = Math.hypot(e.pos.x - origin.x, e.pos.z - origin.z);
+      critMul *= 1 + ch.def.passive.farCrit * Math.min(1, Math.max(0, (d - 4) / 10));
+    }
+    if (ch.def.passive.backstab && Math.abs(angleDiff(e.facing, Math.atan2(origin.x - e.pos.x, origin.z - e.pos.z))) > 2.1) {
+      if (crit) critMul *= 1.2;                     // 이리스: 후방 치명타 +20%
+      if (P.backstabT <= 0) { P.backstabT = 1; ch.cd.q = Math.max(0, ch.cd.q - 1); ch.cd.e = Math.max(0, ch.cd.e - 1); }
+    }
+    const dmg = ch.def.stats.atk * hit.dmg * atkBuff * critMul * (0.92 + Math.random() * 0.16);
     if (oneHit) { e.takeHit({ dmg: 1e9, guard: 1e9, from: origin, facing, ignoreGuard: true, kb: hit.kb, kbPow: hit.kbPow ?? 0 }); landed++; continue; }
     const guard = (hit.guard ?? 0) * (ch.def.passive.guardMul ?? 1) * (ch.def.power === 2 ? 1.25 : 1);
     const res = e.takeHit({
       dmg, guard, kb: hit.kb, kbPow: hit.kbPow ?? 0, from: origin, facing,
-      ignoreGuard: hit.ignoreGuard, debuff: hit.debuff, force: hit.force,
+      ignoreGuard: hit.ignoreGuard, debuff: hit.debuff, debuffDur: hit.debuffDur, force: hit.force,
     });
     if (!res) continue;
     landed++;

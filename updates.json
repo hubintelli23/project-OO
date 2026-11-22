@@ -1,7 +1,76 @@
 {
   "project": "Project OO",
-  "current": "1.4.1",
+  "current": "1.5.0",
   "updates": [
+    {
+      "version": "1.5.0",
+      "date": "2026-11-22",
+      "title": "파티 편성 + 캐릭터 6명 추가",
+      "changes": [
+        {
+          "type": "추가",
+          "text": "타이틀 '파티 편성' 화면 — 9명 중 3명을 역할 무관하게 자유 편성, ◀▶로 출전 순서 변경, 편성은 브라우저에 저장",
+          "files": [
+            "js/ui/menu.js",
+            "index.html",
+            "css/style.css",
+            "js/main.js"
+          ]
+        },
+        {
+          "type": "추가",
+          "text": "플레이어블 6명 합류 — 이리스(서브 딜러)·샤를(서포터)·노아(서포터)·카엘(서브 딜러)·루시안(딜러)·베아트리스(서브 딜러). 기본 공격 4타·강공격·점프 공격·패시브·Q/E·궁극기 구현",
+          "files": [
+            "js/data/characters-extra.js",
+            "js/data/characters.js"
+          ]
+        },
+        {
+          "type": "추가",
+          "text": "신규 무기 모델(레이피어·룬 오르브·너클·펜듈럼·사슬 낫)과 외형 — 외형 색은 임시",
+          "files": [
+            "js/assets/weapons.js",
+            "js/assets/avatars.js"
+          ]
+        },
+        {
+          "type": "추가",
+          "text": "속박(루시안·베아트리스), 은신·회피율(노아 장막), 파티 보호막/회복, 후방 공격·원거리 치명타·돌격 과부하·다수 제압 등 캐릭터 패시브 처리",
+          "files": [
+            "js/game/party.js",
+            "js/game/combat.js",
+            "js/game/enemy.js"
+          ]
+        },
+        {
+          "type": "변경",
+          "text": "리아의 파티 최대 체력 +15%는 편성에 리아가 있을 때만 적용 (패시브 데이터로 이동)",
+          "files": [
+            "js/game/party.js",
+            "js/data/characters.js"
+          ]
+        },
+        {
+          "type": "변경",
+          "text": "HUD 슬롯 번호는 편성 순서(1·2·3)를 따름",
+          "files": [
+            "js/ui/hud.js"
+          ]
+        },
+        {
+          "type": "수정",
+          "text": "베아트리스는 문서가 기본 공격 4타에서 끝나 강공격·점프·Q/E·궁극기·패시브가 '(임시)' 구성 — 편성 화면에 '일부 임시' 표시",
+          "files": [
+            "js/data/characters-extra.js"
+          ]
+        },
+        {
+          "type": "변경",
+          "text": "미구현(문서에는 있음): 권능 스킬 F · 지원 스킬(교체 난입) · 특수공격 · 스킬 트리 · 인연 시너지",
+          "files": []
+        }
+      ]
+    },
     {
       "version": "1.4.1",
       "date": "2026-11-22",

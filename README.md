@@ -1,4 +1,4 @@
-# Project OO — 액션 JRPG 전투 체험판 v1.4.1
+# Project OO — 액션 JRPG 전투 체험판 v1.5.0
 
 3인칭 백뷰(명조: 워더링 웨이브 스타일) 웹 액션 JRPG. three.js(CDN) 사용.
 
@@ -91,11 +91,13 @@ js/ui/map.js          지도·미니맵
 js/ui/menu.js         타이틀·설정·결과 화면
 js/ui/codex.js        세계관 도감 (인물·신·세력·용어)
 js/data/lore.js       도감 데이터 (기획서 기준)
+js/data/characters-extra.js 추가 캐릭터 6명 (이리스·샤를·노아·카엘·루시안·베아트리스)
 js/data/combat-doc.js 전투 시스템 기획서 수록 데이터 (도감 '전투 시스템' 탭)
 ```
 
 ## 수정 포인트
-- 기술 수치/이름/이펙트: `js/data/characters.js`
+- 기술 수치/이름/이펙트: `js/data/characters.js` (카인·시엔·리아), `js/data/characters-extra.js` (나머지 6명)
+- 파티 편성: 타이틀의 '파티 편성' 버튼 (`js/ui/menu.js`) — 9명 중 3명, 역할 무관
 - 권능 컬러: `js/data/powers.js`
 - 홀딩 시간·쿨타임·카메라: `js/config.js`
 - 모델 교체(GLB 등): `js/game/models.js`의 `buildHumanoid` 반환 구조를 유지하면 됨

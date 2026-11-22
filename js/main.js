@@ -106,7 +106,7 @@ class Game {
     if (this.party) for (const m of this.party.members) this.scene.remove(m.rig.root);
     for (const c of this.world.chests) { c.opened = false; c.lid.rotation.x = 0; c.glow.visible = true; }
 
-    this.party = new Party(this, this.gender);
+    this.party = new Party(this, this.gender, this.menu.partyIds);
     this.hud = new Hud(this);
     this.menu.apply();
     this.hud.setAbyss(false);

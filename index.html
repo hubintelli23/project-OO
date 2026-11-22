@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Project OO · index.html v1.4.1 -->
+<!-- Project OO · index.html v1.5.0 -->
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
@@ -7,11 +7,11 @@
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="theme-color" content="#0b0f15" />
-  <meta name="version" content="1.4.1" />
-  <title>Project OO v1.4.1</title>
+  <meta name="version" content="1.5.0" />
+  <title>Project OO v1.5.0</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=Noto+Serif+KR:wght@600;900&display=swap" />
-  <link rel="stylesheet" href="css/style.css?v=1.4.1" />
+  <link rel="stylesheet" href="css/style.css?v=1.5.0" />
   <script type="importmap">
     { "imports": {
         "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
@@ -104,6 +104,7 @@
         </div>
       </div>
       <div id="title-roster"></div>
+      <button id="btn-party-edit" class="ghost t-party">파티 편성 <small>(9명 중 3명)</small></button>
       <button id="btn-start" class="primary">전투 시작</button>
       <button class="ghost t-codex" data-open-codex>세계관 도감</button>
       <div class="t-hint pc-only">클릭하면 마우스가 화면에 고정됩니다 · <kbd>Esc</kbd> 설정</div>
@@ -139,6 +140,16 @@
     </div>
   </div>
 
+  <div id="party-edit" class="overlay">
+    <div class="panel pe-panel">
+      <div class="panel-head"><h2>파티 편성</h2><span>9명 중 3명 · 역할 무관 자유 편성 · 순서 = 1번이 처음 출전</span></div>
+      <div id="pe-slots" class="pe-slots"></div>
+      <div id="pe-grid" class="pe-grid"></div>
+      <div id="pe-info" class="pe-info"></div>
+      <div class="panel-actions"><button id="btn-pe-reset" class="ghost">기본 편성</button><button id="btn-pe-close" class="primary">확인</button></div>
+    </div>
+  </div>
+
   <div id="codex" class="overlay">
     <div class="panel cx-panel">
       <div class="panel-head"><h2>세계관 도감</h2><span>project OO 기획서 기준</span></div>
@@ -171,6 +182,6 @@
       el.style.display = 'block';
     });
   </script>
-  <script type="module" src="js/main.js?v=1.4.1"></script>
+  <script type="module" src="js/main.js?v=1.5.0"></script>
 </body>
 </html>

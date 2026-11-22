@@ -18,6 +18,11 @@ export const WEAPONS = {
   dagger:     { name: '단검',              hands: 'R' },
   staff:      { name: '주술 지팡이',       hands: 'R' },
   greatsword: { name: '대검',              hands: 'R' },
+  rapier:     { name: '레이피어',          hands: 'R' },
+  runeOrb:    { name: '룬 오르브',         hands: 'L' },
+  knuckle:    { name: '너클',              hands: 'RL' },
+  pendulum:   { name: '마도 펜듈럼',       hands: 'RL' },
+  chainScythe:{ name: '마도 환영 대체인',  hands: 'R' },
 };
 
 // 캐릭터 무기 세트 → 손별 무기
@@ -25,6 +30,12 @@ export const WEAPON_SETS = {
   katana: { R: 'katana', sheath: true },
   dual: { R: 'dual', L: 'dual' },
   swordShield: { R: 'sword', L: 'shield' },
+  rapierDagger: { R: 'rapier', L: 'dagger' },
+  staffOrb: { R: 'staff', L: 'runeOrb' },
+  dualDagger: { R: 'dagger', L: 'dagger' },
+  knuckle: { R: 'knuckle', L: 'knuckle' },
+  pendulum: { R: 'pendulum', L: 'pendulum' },
+  chainScythe: { R: 'chainScythe' },
 };
 
 // ---------- 무기 ----------
@@ -84,6 +95,40 @@ export function buildWeapon(type, look) {
       g.add(mesh(new THREE.BoxGeometry(0.4, 0.06, 0.12), accMat, 0, -0.32, 0));
       g.add(mesh(new THREE.BoxGeometry(0.06, 1.7, 0.26), mat(0x2a2630, { metalness: 0.7, roughness: 0.35 }), 0, -1.2, 0));
       g.add(mesh(new THREE.BoxGeometry(0.065, 1.5, 0.05), mat(look.accent, { emissive: look.accent, emissiveIntensity: 0.9 }), 0, -1.2, 0.02));
+      break;
+    }
+    case 'rapier': {
+      g.add(mesh(new THREE.BoxGeometry(0.045, 0.2, 0.045), darkMat, 0, -0.04, 0));
+      const guard = mesh(new THREE.TorusGeometry(0.075, 0.012, 6, 14), accMat, 0, -0.15, 0);
+      guard.rotation.x = Math.PI / 2;
+      g.add(guard);
+      g.add(mesh(new THREE.BoxGeometry(0.02, 1.15, 0.03), bladeMat, 0, -0.74, 0));
+      break;
+    }
+    case 'runeOrb': {
+      g.add(mesh(new THREE.SphereGeometry(0.1, 12, 10), mat(look.accent, { emissive: look.accent, emissiveIntensity: 1.1 }), 0, 0.05, 0.1));
+      const ring = mesh(new THREE.TorusGeometry(0.16, 0.012, 6, 18), accMat, 0, 0.05, 0.1);
+      ring.rotation.x = Math.PI / 2.4;
+      g.add(ring);
+      break;
+    }
+    case 'knuckle': {
+      g.add(mesh(new THREE.BoxGeometry(0.14, 0.1, 0.17), mat(0x2a2d38, { metalness: 0.7, roughness: 0.35 }), 0, -0.1, 0.04));
+      for (let i = -1; i <= 1; i++) g.add(mesh(new THREE.BoxGeometry(0.03, 0.03, 0.04), accMat, i * 0.04, -0.1, 0.13));
+      break;
+    }
+    case 'pendulum': {
+      g.add(mesh(new THREE.CylinderGeometry(0.008, 0.008, 0.45, 5), darkMat, 0, -0.3, 0));
+      g.add(mesh(new THREE.OctahedronGeometry(0.1), accMat, 0, -0.58, 0));
+      break;
+    }
+    case 'chainScythe': {
+      g.add(mesh(new THREE.CylinderGeometry(0.022, 0.022, 0.8, 6), darkMat, 0, -0.3, 0));
+      const blade = mesh(new THREE.BoxGeometry(0.03, 0.6, 0.12), bladeMat, 0, -0.78, 0.2);
+      blade.rotation.x = -0.9;
+      g.add(blade);
+      const chain = mesh(new THREE.TorusGeometry(0.12, 0.012, 6, 14), accMat, 0, 0.1, 0);
+      g.add(chain);
       break;
     }
     default: break;
