@@ -61,12 +61,14 @@ export function playerHit(G, ch, hit, origin, facing, pathFrom) {
   const color = powerColor(ch.def.power, stage);
   let landed = 0;
   const shieldAtkMul = ch.shield > 0 && P.members.some(m => m.alive && m.def.passive.shieldAtk) ? 1.15 : 1; // 샤를: 전술적 차단
-  const multiMul = hit.multiScale ? 1 + Math.min(0.5, 0.1 * (targets.length - 1)) : 1;                       // 베아트리스: 다수 제압
+  const K = P.kit;
+  const multiMul = hit.multiScale ? K.multiMul(ch, hit, targets.length) : 1;                                  // 베아트리스: 완벽한 집행
 
   for (const e of targets) {
     // 치명타 (제 5권능 상시 치명 보정, 제 2권능은 그로기 대상 치명 증폭)
     let critRate = 0.12 + (ch.def.power === 5 ? 0.1 : 0) + (P.buffs.crit > 0 ? 0.2 : 0);
     if (ch.def.power === 2 && e.groggy > 0) critRate += 0.4;
+    critRate += K.critAdd(ch, e);                    // 스킬 트리 · 권능 각성
     const crit = Math.random() < critRate;
     const atkBuff = (P.buffs.atk > 0 ? 1.2 : 1) * (stage === 2 ? 1.15 : 1) * shieldAtkMul * multiMul;
     let critMul = crit ? 1.65 : 1;
@@ -78,15 +80,16 @@ export function playerHit(G, ch, hit, origin, facing, pathFrom) {
       if (crit) critMul *= 1.2;                     // 이리스: 후방 치명타 +20%
       if (P.backstabT <= 0) { P.backstabT = 1; ch.cd.q = Math.max(0, ch.cd.q - 1); ch.cd.e = Math.max(0, ch.cd.e - 1); }
     }
-    const dmg = ch.def.stats.atk * hit.dmg * atkBuff * critMul * (0.92 + Math.random() * 0.16);
+    const dmg = ch.def.stats.atk * hit.dmg * atkBuff * critMul * K.targetMul(ch, e, hit, origin) * (0.92 + Math.random() * 0.16);
     if (oneHit) { e.takeHit({ dmg: 1e9, guard: 1e9, from: origin, facing, ignoreGuard: true, kb: hit.kb, kbPow: hit.kbPow ?? 0 }); landed++; continue; }
-    const guard = (hit.guard ?? 0) * (ch.def.passive.guardMul ?? 1) * (ch.def.power === 2 ? 1.25 : 1);
+    const guard = (hit.guard ?? 0) * (ch.def.passive.guardMul ?? 1) * (ch.def.power === 2 ? 1.25 : 1) * K.guardMul(ch, e, hit);
     const res = e.takeHit({
       dmg, guard, kb: hit.kb, kbPow: hit.kbPow ?? 0, from: origin, facing,
       ignoreGuard: hit.ignoreGuard, debuff: hit.debuff, debuffDur: hit.debuffDur, force: hit.force,
     });
     if (!res) continue;
     landed++;
+    K.onTargetHit(ch, e, hit, res, origin);
     const c = e.center(_v);
     G.hud.damageNumber(c, res.hp, crit, res.broke);
     G.fx.particles(c, color, crit ? 14 : 8, crit ? 9 : 6);

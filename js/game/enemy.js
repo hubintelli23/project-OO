@@ -36,7 +36,8 @@ export class Enemy {
     this.deadT = 0;
     this.removed = false;
     this.phase2 = false;
-    this.debuffs = { slow: 0, defDown: 0, atkDown: 0, bind: 0 };
+    this.debuffs = { slow: 0, defDown: 0, atkDown: 0, bind: 0, sever: 0 };
+    this.steal = 0; this.reson = 0; this.arcMark = 0; this.moon = 0;  // kit.js (찬탈·공명·아크 표식·현월 중첩)
     this.aggro = false;
     this.phase = 0;
 
@@ -122,6 +123,7 @@ export class Enemy {
 
   breakGuard() {
     this.groggy = COMBAT.groggyTime;
+    this.G.party?.kit?.onGuardBreak(this);
     this.cancelAttack();
     this.state = 'groggy';
     this.G.hud.toast('방막 파쇄!', '#9ad8ff');
@@ -178,7 +180,7 @@ export class Enemy {
     if (this.groggy > 0) {
       this.groggy -= dt;
       this.state = 'groggy';
-      if (this.groggy <= 0) { this.guard = this.maxGuard; this.state = 'chase'; G.hud.toast(`${this.boss ? this.name.split(' ').pop() : ''} 방막 재생`, '#c8d7ff', 0.8); }
+      if (this.groggy <= 0) { this.guard = this.maxGuard * (this.debuffs.sever > 0 ? 0.5 : 1); /* 카인 신폐 절단: 방막 재생 약화 */ this.state = 'chase'; G.hud.toast(`${this.boss ? this.name.split(' ').pop() : ''} 방막 재생`, '#c8d7ff', 0.8); }
     } else {
       switch (this.state) {
         case 'idle': {

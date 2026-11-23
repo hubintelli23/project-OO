@@ -5,6 +5,7 @@
 import * as THREE from 'three';
 import { COMBAT } from '../config.js';
 import { POWERS, powerColor, hex } from '../data/powers.js';
+import { KITS } from '../data/kits.js';
 
 const $ = id => document.getElementById(id);
 const _v = new THREE.Vector3();
@@ -27,6 +28,10 @@ export class Hud {
     this.showNumbers = true;
     this.buildParty();
     this.buildSkills();
+    // 특수공격 안내 (v1.6.0)
+    this.el.chain = document.createElement('div');
+    this.el.chain.id = 'chain-hint';
+    this.el.root.appendChild(this.el.chain);
     this.frames = 0; this.fpsT = 0;
   }
 
@@ -40,7 +45,7 @@ export class Hud {
       d.innerHTML = `
         <div class="pm-slot" style="border-color:${c}">${i + 1}</div>
         <div class="pm-body">
-          <div class="pm-name">${m.name}<span class="pm-role">${m.def.role}</span></div>
+          <div class="pm-name">${m.name}<span class="pm-role"><b class="pm-assist">지원</b>${m.def.role}</span></div>
           <div class="pm-bar"><i class="pm-hp"></i></div>
           <div class="pm-bar ult"><i class="pm-ult" style="background:${c}"></i></div>
         </div>`;
@@ -54,12 +59,12 @@ export class Hud {
     const s = this.el.skills;
     s.innerHTML = '';
     this.skillUi = {};
-    [['q', 'Q'], ['e', 'E'], ['r', 'R']].forEach(([k, label]) => {
+    [['q', 'Q'], ['e', 'E'], ['r', 'R'], ['f', 'F']].forEach(([k, label]) => {
       const d = document.createElement('div');
-      d.className = 'sk' + (k === 'r' ? ' ult' : '');
+      d.className = 'sk' + (k === 'r' ? ' ult' : '') + (k === 'f' ? ' pw' : '');
       d.dataset.act = `key:Key${label}`; // 휴대폰: 스킬 아이콘을 눌러 사용
       d.innerHTML = `<div class="sk-icon"><span class="sk-glyph"></span><div class="sk-cd"></div><div class="sk-cdt"></div>
-        ${k === 'r' ? '<svg class="sk-ring" viewBox="0 0 64 64"><circle cx="32" cy="32" r="29"/></svg>' : ''}</div>
+        ${k === 'r' || k === 'f' ? '<svg class="sk-ring" viewBox="0 0 64 64"><circle cx="32" cy="32" r="29"/></svg>' : ''}</div>
         <kbd>${label}</kbd><div class="sk-name"></div>`;
       s.appendChild(d);
       this.skillUi[k] = { root: d, cd: d.querySelector('.sk-cd'), cdt: d.querySelector('.sk-cdt'), name: d.querySelector('.sk-name'), glyph: d.querySelector('.sk-glyph'), ring: d.querySelector('.sk-ring circle') };
@@ -79,6 +84,15 @@ export class Hud {
       u.name.textContent = ch.def.skills[k].name;
       u.glyph.textContent = glyphs[k];
       u.root.style.setProperty('--c', hex(powerColor(ch.def.power, k === 'r' ? 2 : 1)));
+    }
+    // 권능 스킬 F
+    const pw = KITS[ch.id]?.power;
+    const uf = this.skillUi.f;
+    uf.root.style.display = pw ? '' : 'none';
+    if (pw) {
+      uf.name.textContent = pw.name.replace(/^.*?:\s*/, '');
+      uf.glyph.textContent = '權';
+      uf.root.style.setProperty('--c', hex(powerColor(ch.def.power, 2)));
     }
     P.members.forEach((m, i) => m._ui.root.classList.toggle('active', i === P.activeIdx));
   }
@@ -115,12 +129,27 @@ export class Hud {
     ur.cd.style.height = '0%';
     ur.cdt.textContent = uk >= 1 ? '' : `${Math.floor(uk * 100)}`;
 
+    // 권능 스킬 F
+    const uf = this.skillUi.f;
+    const aw = P.kit.awakenFor(ch);
+    const pk = aw ? aw.t / aw.max : ch.power / COMBAT.powerMax;
+    uf.ring.style.strokeDashoffset = `${182 * (1 - pk)}`;
+    uf.root.classList.toggle('ready', !aw && pk >= 1);
+    uf.root.classList.toggle('active', !!aw);
+    uf.cd.style.height = '0%';
+    uf.cdt.textContent = aw ? aw.t.toFixed(0) : pk >= 1 ? '' : `${Math.floor(pk * 100)}`;
+
+    // 특수공격 안내
+    const hint = P.kit.hint();
+    if (hint !== this._hint) { this._hint = hint; this.el.chain.innerHTML = hint ?? ''; this.el.chain.classList.toggle('on', !!hint); }
+
     // 파티
     for (const m of P.members) {
       m._ui.hp.style.width = `${(m.hp / m.maxHp) * 100}%`;
       m._ui.ult.style.width = `${(m.ult / COMBAT.ultMax) * 100}%`;
       m._ui.root.classList.toggle('down', !m.alive);
       m._ui.root.classList.toggle('ultready', m.ult >= COMBAT.ultMax);
+      m._ui.root.classList.toggle('assistready', m.alive && m !== ch && (m.cd.assist ?? 0) <= 0 && !!KITS[m.id]?.assist);
     }
 
     // 버프
@@ -129,6 +158,7 @@ export class Hud {
     if (P.buffs.speed > 0) bl.push(`<span style="color:#fff3a0">이동속도↑ ${P.buffs.speed.toFixed(0)}</span>`);
     if (P.buffs.partyInvuln > 0) bl.push(`<span style="color:#ff8fb1">무적 ${P.buffs.partyInvuln.toFixed(0)}</span>`);
     if (P.abyss > 0) bl.push(`<span style="color:#c9c9c9">심연 탈색 ${P.abyss.toFixed(0)}</span>`);
+    bl.push(...P.kit.buffLines());
     if (st === 2) bl.push(`<span style="color:${hex(powerColor(ch.def.power, 2))}">진명 공명 · 피해↑</span>`);
     this.el.buffs.innerHTML = bl.join('');
 

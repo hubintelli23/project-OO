@@ -5,6 +5,7 @@
 //  모드 중 단축키 (숫자키 — 일반 조작키와 겹치지 않음)
 //    1 무적   2 쿨타임·에테르 무제한   3 궁극기 상시 충전   4 한 방 처치
 //    5 적 정지   6 판정 범위 표시   7 적 소환   8 보스 소환   9 파티 회복·부활   0 게임 속도
+//  패널: 권능 F 충전 · 스킬 포인트 +10 · 스킬 트리 초기화 (v1.6.0)
 //  패널 버튼은 Esc(설정)로 마우스를 풀면 클릭할 수 있음 (휴대폰은 바로 터치)
 // =============================================================
 import * as THREE from 'three';
@@ -69,7 +70,8 @@ export class MasterMode {
         <div class="ms-row"><button data-m="clearDebug">소환한 적 제거</button><button data-m="resetRun">진영 초기화</button></div>
         <div class="ms-sec">파티</div>
         <div class="ms-row"><button data-m="heal"><kbd>9</kbd>회복·부활</button><button data-m="ult">궁극기 충전</button></div>
-        <div class="ms-row"><span class="ms-l">권능</span><button data-m="pw0">1단계</button><button data-m="pw1">2단계</button><button data-m="pw2">3단계</button></div>
+        <div class="ms-row"><span class="ms-l">권능</span><button data-m="pw0">1단계</button><button data-m="pw1">2단계</button><button data-m="pw2">3단계</button><button data-m="pwFull">F 충전</button></div>
+        <div class="ms-row"><span class="ms-l">트리</span><button data-m="sp10">스킬 포인트 +10</button><button data-m="treeReset">트리 초기화</button></div>
         <div class="ms-row"><span class="ms-l">아이템</span><button data-m="it:ether">에테르</button><button data-m="it:crystal">결정</button><button data-m="it:essence">정수</button><button data-m="it:gale">깃털</button></div>
         <div class="ms-sec">이동</div>
         <div class="ms-row"><button data-m="tp:start">시작</button>${CAMPS.map((c, i) => `<button data-m="tp:${i}">${c.name.split(' ')[0]}</button>`).join('')}<button data-m="tp:boss">제단</button></div>
@@ -143,6 +145,15 @@ export class MasterMode {
       G.hud.toast('파티 회복·부활', '#8ff0c0', 0.8);
     } else if (m === 'ult') {
       for (const ch of P.members) ch.ult = COMBAT.ultMax;
+    } else if (m === 'pwFull') {
+      for (const ch of P.members) ch.power = COMBAT.powerMax;
+      G.hud.toast('권능 게이지 100% — F 권능 스킬', '#ffe14d', 0.8);
+    } else if (m === 'sp10') {
+      P.kit.sp += 10; P.kit.save();
+      G.hud.toast(`스킬 포인트 ${P.kit.sp}`, '#ffe14d', 0.8);
+    } else if (m === 'treeReset') {
+      P.kit.resetTree();
+      G.hud.toast(`스킬 트리 초기화 — 포인트 ${P.kit.sp}`, '#ffe14d', 0.8);
     } else if (m.startsWith('pw')) {
       P.active.power = [0, 34, 67][+m[2]];
       G.hud.toast(`권능 ${+m[2] + 1}단계`, '#ffe14d', 0.8);
@@ -175,7 +186,7 @@ export class MasterMode {
 
     const P = G.party;
     if (this.flags.noCd) {
-      for (const ch of P.members) { ch.cd.q = 0; ch.cd.e = 0; }
+      for (const ch of P.members) { ch.cd.q = 0; ch.cd.e = 0; ch.cd.assist = 0; }
       P.ether = COMBAT.etherMax;
       P.dodgeCd = Math.min(P.dodgeCd, 0); P.dashCd = Math.min(P.dashCd, 0); P.swapCd = Math.min(P.swapCd, 0);
     }
@@ -195,6 +206,7 @@ export class MasterMode {
         `행동      ${a ? (a.def?.name ?? a.kind) + ' ' + a.t.toFixed(2) + 's' : '-'}`,
         `콤보      ${P.comboIdx + 1}타 대기 · 연속 ${P.combo}`,
         `궁/권능   ${Math.floor(P.active.ult)} / ${Math.floor(P.active.power)} (${P.powerStage(P.active) + 1}단계)`,
+        `키트      궤적 ${P.kit.trails.length}  SP ${P.kit.sp}  ${P.kit.awaken ? '각성 ' + P.kit.awaken.t.toFixed(1) + 's' : ''}`,
         `적        ${alive.length}마리  처치 ${G.kills}/${G.totalMinions}`,
         near.e ? `가까운 적 ${near.e.name.replace('그믐 제단 ', '')} ${near.d.toFixed(1)}m` : '가까운 적 -',
         near.e ? `  HP ${Math.ceil(near.e.hp)} 방막 ${Math.ceil(near.e.guard)} ${near.e.state}` : '',

@@ -17,6 +17,7 @@ import { MapView } from './ui/map.js';
 import { Menu } from './ui/menu.js';
 import { MasterMode } from './debug/master.js';
 import { Codex } from './ui/codex.js';
+import { SkillTree } from './ui/skilltree.js';
 import { CAMPS, BOSS_ARENA } from './data/enemies.js';
 
 class Game {
@@ -57,6 +58,7 @@ class Game {
     this.touch = new TouchControls(this);
     this.master = new MasterMode(this);
     this.codex = new Codex(this);
+    this.skillTree = new SkillTree(this);
     if (this.input.touchMode) {
       this.world.sun.shadow.mapSize.set(1024, 1024);
       this.scene.fog.far = 130;
@@ -143,6 +145,7 @@ class Game {
   onEnemyKilled(e) {
     this.items.dropFrom(e);
     if (e.debug) return; // 마스터 모드로 소환한 적은 진행도에 포함하지 않음
+    this.party?.kit.addSP(e.boss ? 5 : 1); // 스킬 포인트 (v1.6.0)
     if (e.boss) {
       this.hud.banner('집행관 격파', '그믐 제단의 습격을 막아냈다');
       this.sfx.play('boss');

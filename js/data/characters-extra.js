@@ -3,9 +3,9 @@
 //  이리스 · 샤를 · 노아 · 카엘 · 루시안 · 베아트리스
 //  · 기술 스키마는 characters.js 상단 설명과 동일
 //  · 문서에 있는 것: 기본 공격 4타 / 강공격 / 점프 공격 / 패시브 / Q·E / 궁극기
-//  · 아직 게임에 없는 것(생략): 권능 스킬 F · 지원 스킬 · 특수공격 · 스킬 트리 · 인연 시너지
-//  · 문서에 없는 것: 점프 강공격(→ 문서의 '공중 특수공격' 이름 차용),
-//    베아트리스의 강공격·점프·스킬·궁극기 (문서가 기본 공격 4타에서 끝남 → provisional 로 표시한 임시 구성)
+//  · 권능 스킬 F · 지원 스킬 · 특수공격 5종 · 스킬 트리 · 인연 시너지: js/data/kits.js (v1.6.0)
+//  · 점프 강공격(Space+Ctrl+좌클릭) = 문서의 '공중 특수공격' (kits.js air 가 덮어씀)
+//  · 베아트리스: v1.6.0 에서 수정본 기준으로 확정 (임시 구성 해제)
 //  · 새 specials: veil · shieldParty · healParty · zoneAhead · irisUlt · charlUlt · noaUlt · caelUlt · lucianUlt · beatriceUlt
 //  · 새 hit 속성: debuff 'bind'(+debuffDur) · force · multiScale
 // =============================================================
@@ -217,17 +217,16 @@ export const EXTRA_CHARACTERS = {
   },
 
   // -----------------------------------------------------------
-  // ※ 문서가 기본 공격 4타에서 끝나서, 강공격·점프·Q/E·궁극기·패시브는 임시 구성 (provisional)
-  //   · '핵심 기믹'(광역·흡인·군중 제어, 다수 타격 시 스킬 피해 증가)만 근거로 함
+  // 수정본(md) 기준으로 강공격·점프·패시브·Q/E·궁극기 확정 (v1.6.0 — 임시 구성 해제)
   beatrice: {
     id: 'beatrice',
     name: '베아트리스 에블린', short: '베아트리스',
     title: '아카데미 학생회 집행부장',
-    role: '서브 딜러', power: 5, provisional: true,
+    role: '서브 딜러', power: 5,
     avatar: 'beatrice', lockRange: 8,
     weapon: 'chainScythe', weaponName: '마도 환영 대체인(사슬 낫)',
     stats: { hp: 1100, atk: 92, def: 34, speed: 7.4 },
-    passive: { name: '(임시) 다수 제압', desc: '여러 적을 동시에 맞힐수록 스킬 피해 증가. (제 5 권능 잔향의 궤적 공통)', multiScale: true },
+    passive: { name: '완벽한 집행', desc: '3명 이상의 적을 동시에 타격하면 스킬 피해량 +20%. (제 5 권능 잔향의 궤적 공통)', multi3: 0.2 },
     combo: [
       { name: '사슬 횡단 참', dur: 0.44, cancelAt: 0.28, swing: 'horiz', swingAt: [0.04, 0.2],
         hits: [{ t: 0.14, shape: 'arc', range: 4.6, arc: 180, dmg: 0.8, guard: 9, fx: slash(0, 3.2, 190) }] },
@@ -239,20 +238,20 @@ export const EXTRA_CHARACTERS = {
       { name: '피니시: 환영 가시 폭발', dur: 0.76, cancelAt: 0.64, swing: 'down', swingAt: [0.12, 0.28],
         hits: [{ t: 0.3, shape: 'circle', range: 4.6, dmg: 1.5, guard: 22, kb: 'knock', kbPow: 10, fx: { type: 'wave', stage: 2, radius: 4.8 } }] },
     ],
-    heavy: { name: '(임시) 사슬 휘감기', dur: 0.62, cancelAt: 0.46, swing: 'spin', swingAt: [0.06, 0.4],
-      hits: [{ t: 0.24, shape: 'circle', range: 6.5, dmg: 1.4, guard: 50, kb: 'pull', kbPow: 1.1, fx: { type: 'implode', radius: 6.5 } }] },
-    jump: { name: '(임시) 낙하 사슬 베기', dur: 0.5, cancelAt: 0.42, swing: 'diag', swingAt: [0.02, 0.2], plunge: 26,
+    heavy: { name: '진형 무력화', desc: '사슬을 지면에 튕겨 전방 넓은 범위의 적을 1초간 기절.', dur: 0.62, cancelAt: 0.46, swing: 'down', swingAt: [0.06, 0.2],
+      hits: [{ t: 0.2, shape: 'arc', range: 6.5, arc: 150, dmg: 1.4, guard: 50, debuff: 'bind', debuffDur: 1, fx: { type: 'wave', stage: 1, radius: 5 } }] },
+    jump: { name: '공중 사슬 강하', dur: 0.5, cancelAt: 0.42, swing: 'diag', swingAt: [0.02, 0.2], plunge: 26,
       hits: [{ t: 'land', shape: 'circle', range: 3.6, dmg: 1.2, guard: 12, fx: slash(0.9, 2.6, 160) }] },
-    jumpHeavy: { name: '(임시) 환영 가시 낙하', dur: 0.72, cancelAt: 0.6, swing: 'down', swingAt: [0.02, 0.2], plunge: 32, superArmor: true,
+    jumpHeavy: { name: '천공 사슬 감옥', dur: 0.72, cancelAt: 0.6, swing: 'down', swingAt: [0.02, 0.2], plunge: 32, superArmor: true,
       hits: [{ t: 'land', shape: 'circle', range: 5.4, dmg: 2.1, guard: 45, kb: 'knock', kbPow: 9, fx: { type: 'wave', stage: 2, radius: 5.6 } }] },
     skills: {
-      q: { name: '(임시) 사슬 흡인', desc: '넓은 범위의 적을 한곳으로 끌어모은다.', cd: 8, cost: 24,
+      q: { name: '사슬 회오리', desc: '사슬 낫을 크게 회전시켜 원형 범위의 적을 중심부로 끌어모은다.', cd: 8, cost: 24,
         dur: 0.7, cancelAt: 0.54, swing: 'spin', swingAt: [0.06, 0.4], superArmor: true,
         hits: [{ t: 0.3, shape: 'circle', range: 10, dmg: 1.8, guard: 25, multiScale: true, kb: 'pull', kbPow: 1.3, fx: { type: 'implode', radius: 10 } }] },
-      e: { name: '(임시) 환영 가시 속박', dur: 0.7, cancelAt: 0.54, swing: 'down', swingAt: [0.1, 0.28], superArmor: true,
-        desc: '환영 가시로 범위 내 적을 2초간 속박.', cd: 11, cost: 30,
-        hits: [{ t: 0.3, shape: 'circle', range: 5.5, dmg: 2.0, guard: 30, multiScale: true, debuff: 'bind', debuffDur: 2, fx: { type: 'wave', stage: 2, radius: 5.6 } }] },
-      r: { name: '(임시) 진명 해방: 궤적의 사슬', desc: '전장의 적을 사슬로 모은 뒤 환영 가시를 폭발.', cost: 0,
+      e: { name: '환영 단죄', dur: 0.85, cancelAt: 0.7, swing: 'horiz', swingAt: [0.1, 0.6], superArmor: true,
+        desc: '지정 구역에 청록색 사슬 잔상을 다수 생성해 연속 절단 피해.', cd: 11, cost: 30, special: 'zoneAhead',
+        zone: { dist: 6, r: 4.6, ticks: 6, interval: 0.14, dmg: 0.55, guard: 10 }, hits: [] },
+      r: { name: '진명 해방: 집행자의 가시 환영', desc: '전장을 거대한 사슬 낫 감옥으로 — 사슬이 적을 구속하고 환영 낫이 전역을 절단.', cost: 0,
         dur: 1.8, cancelAt: 1.7, swing: 'spin', swingAt: [0.8, 1.6], iframe: [0, 1.8], cutin: true, special: 'beatriceUlt',
         hits: [{ t: 1.0, shape: 'circle', range: 16, dmg: 1.5, guard: 40, kb: 'pull', kbPow: 1.4 },
                { t: 1.25, shape: 'circle', range: 8, dmg: 2.4, guard: 60, multiScale: true },

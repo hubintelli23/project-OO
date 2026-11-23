@@ -2,6 +2,7 @@
 //  파티 & 플레이어 컨트롤러
 //  이동·점프·회피·대쉬 / 1~4타 콤보 / 강공격(홀딩) / 점프 공격
 //  스킬(Q·E) / 궁극기(R) / 캐릭터 전환(Tab) / 피격·완벽 회피
+//  v1.6.0: 특수공격·지원 스킬·권능 스킬 F·스킬 트리·인연 시너지 → this.kit (js/game/kit.js)
 // =============================================================
 import * as THREE from 'three';
 import { COMBAT, MOVE, PHYS, KEYS } from '../config.js';
@@ -9,6 +10,7 @@ import { CHARACTERS, PARTY_ORDER } from '../data/characters.js';
 import { POWERS, powerColor } from '../data/powers.js';
 import { buildAvatar, poseRig, flashRig } from '../assets/avatars.js';
 import { playerHit } from './combat.js';
+import { Kit } from './kit.js';
 import { turnToward, clamp, angleDiff } from '../core/utils.js';
 
 const ENTRY_SLASH = {
@@ -64,11 +66,12 @@ export class Party {
     this.ghostT = 0;
     this.hurtFlash = 0;
     this.active.rig.root.visible = true;
+    this.kit = new Kit(this);
   }
 
   get active() { return this.members[this.activeIdx]; }
 
-  powerStage(ch) { return ch.power >= 67 ? 2 : ch.power >= 34 ? 1 : 0; }
+  powerStage(ch) { if (this.kit?.awakenFor(ch)) return 2; return ch.power >= 67 ? 2 : ch.power >= 34 ? 1 : 0; }
   gainUlt(ch, v) { ch.ult = Math.min(COMBAT.ultMax, ch.ult + v); }
   gainPower(ch, v) {
     const before = this.powerStage(ch);
@@ -137,7 +140,8 @@ export class Party {
     this.invuln = Math.max(0, this.invuln - dt);
     for (const k in this.buffs) this.buffs[k] = Math.max(0, this.buffs[k] - dt);
     if (this.abyss > 0) { this.abyss -= dt; if (this.abyss <= 0) G.hud.setAbyss(false); }
-    this.ether = Math.min(COMBAT.etherMax, this.ether + COMBAT.etherRegen * dt);
+    this.ether = Math.min(COMBAT.etherMax, this.ether + COMBAT.etherRegen * this.kit.etherMul() * dt);
+    this.kit.update(dt);
     if (this.comboShowT > 0) { this.comboShowT -= dt; if (this.comboShowT <= 0) this.combo = 0; }
     if (!this.action) this.comboTimer += dt;
     if (this.comboTimer > COMBAT.comboReset) this.comboIdx = 0;
@@ -167,9 +171,9 @@ export class Party {
           this.startMove(heavy ? ch.def.jumpHeavy : ch.def.jump, heavy ? 'jumpHeavy' : 'jump', dir);
         }
       } else if (ev.type === 'tap') {
-        if (this.grounded) this.requestAttack('light', dir);
+        if (this.grounded) { const sp = this.kit.pickTap(); this.requestAttack(sp ? 'sp:' + sp : 'light', dir); }
       } else if (ev.type === 'hold') {
-        if (this.grounded) this.requestAttack('heavy', dir);
+        if (this.grounded) { const sp = this.kit.pickHold(); this.requestAttack(sp ? 'sp:' + sp : 'heavy', dir); }
       } else if (ev.type === 'dash') {
         this.tryDash(dir);
       }
@@ -180,6 +184,8 @@ export class Party {
     if (input.wasPressed(KEYS.skill2)) this.trySkill('e', dir);
     if (input.wasPressed(KEYS.ult)) this.trySkill('r', dir);
     if (input.wasPressed(KEYS.swap)) this.trySwap();
+    // 권능 스킬 F — 근처에 줍거나 열 것이 있으면 상호작용이 우선 (main.js)
+    if (input.wasPressed(KEYS.interact) && !G.items.nearest(this.pos)) this.kit.tryPower();
 
     // 버퍼된 입력 처리
     if (this.buffer && this.canAct()) {
@@ -191,7 +197,7 @@ export class Party {
     let speed = 0;
     const a = this.action;
     if (a) {
-      a.t += dt;
+      a.t += a.kind === 'move' ? dt * this.kit.atkSpeed(ch, a) : dt;
       if (a.kind === 'move') this.updateMove(dt, a);
       else if (a.kind === 'dodge') {
         const k = a.t / MOVE.dodgeTime;
@@ -212,7 +218,7 @@ export class Party {
     // ---- 이동 ----
     if (!this.action) {
       if (dir) {
-        const base = ch.def.stats.speed * (ch.def.power === 5 ? 1.1 : 1) * (this.buffs.speed > 0 ? 1.2 : 1);
+        const base = ch.def.stats.speed * (ch.def.power === 5 ? 1.1 : 1) * (this.buffs.speed > 0 ? 1.2 : 1) * this.kit.moveSpeed(ch);
         speed = base * (this.sprint ? MOVE.sprintMul : 1);
         this.facing = turnToward(this.facing, Math.atan2(dir.x, dir.z), MOVE.turnSpeed * dt);
         this.moveVel.lerp(dir.clone().multiplyScalar(speed), 1 - Math.exp(-MOVE.accel * dt / 4));
@@ -264,13 +270,17 @@ export class Party {
   requestAttack(kind, dir) {
     const ch = this.active;
     if (!this.canAct()) { this.buffer = kind; return; }
-    if (kind === 'heavy') {
+    if (kind.startsWith('sp:')) {               // 특수공격 (kit.js)
+      if (!this.kit.startSpecial(kind.slice(3), dir)) this.requestAttack('light', dir);
+    } else if (kind === 'heavy') {
       this.comboIdx = 0;
       this.startMove(ch.def.heavy, 'heavy', dir);
     } else {
-      const def = ch.def.combo[this.comboIdx];
+      const idx = this.comboIdx;
+      const def = ch.def.combo[idx];
       this.comboIdx = (this.comboIdx + 1) % ch.def.combo.length;
       this.startMove(def, 'combo', dir);
+      if (idx === ch.def.combo.length - 1) { this.action.combo4 = true; this.kit.onCombo4(def); }
     }
   }
 
@@ -280,7 +290,7 @@ export class Party {
     this.buffer = null;
     this.sprint = false;
     // 소프트 락온
-    const t = this.findTarget(kind === 'skill' ? 12 : (ch.def.lockRange ?? COMBAT.softLockRange), dir);
+    const t = this.findTarget(kind === 'skill' || kind === 'special' || kind === 'assist' ? 12 : (ch.def.lockRange ?? COMBAT.softLockRange), dir);
     if (t) this.facing = Math.atan2(t.pos.x - this.pos.x, t.pos.z - this.pos.z);
     else if (dir) this.facing = Math.atan2(dir.x, dir.z);
 
@@ -294,7 +304,7 @@ export class Party {
       this.vy = 3.5;
       a.plungeGo = false;
     }
-    G.sfx.play(kind === 'heavy' || kind === 'jumpHeavy' ? 'heavy' : kind === 'skill' ? 'skill' : 'swing');
+    G.sfx.play(kind === 'heavy' || kind === 'jumpHeavy' ? 'heavy' : kind === 'skill' || kind === 'special' || kind === 'assist' ? 'skill' : 'swing');
 
     // 시작 시 특수 효과
     switch (def.special) {
@@ -344,6 +354,7 @@ export class Party {
       case 'parry': a.parry = true; break;
       default: break;
     }
+    this.kit.onMoveStart(a);
     if (def.cutin) this.beginUlt(def);
   }
 
@@ -466,6 +477,7 @@ export class Party {
     const finished = a.plunge ? (a.landed && a.t - a.landT >= Math.max(0.25, def.dur - 0.25)) : a.t >= def.dur;
     if (finished) {
       this.action = null;
+      this.kit.onMoveEnd(a);
       if (a.overloaded) this.overloadT = 0;
       if (a.moveKind === 'skill' && def.dash && ch.def.passive.overload) this.overloadT = 5; // 카엘: 이동 스킬 후
       if (a.moveKind === 'skill' && ch.def.power === 5) this.buffs.speed = 3; // 제 5 권능: 스킬 사용 후 이동 속도 증가
@@ -496,9 +508,10 @@ export class Party {
     if (h.sfx) G.sfx.play(h.sfx);
     const origin = new THREE.Vector3(this.pos.x, this.pos.y, this.pos.z);
     // 카엘 '돌격의 과부하': 돌진 후 첫 기본 공격 피해 +30%
-    let hh = h;
-    if (this.overloadT > 0 && a.moveKind === 'combo' && ch.def.passive.overload) { hh = { ...h, dmg: h.dmg * 1.3 }; a.overloaded = true; }
+    let hh = this.kit.modifyHit(h, a);
+    if (this.overloadT > 0 && a.moveKind === 'combo' && ch.def.passive.overload) { hh.dmg *= 1.3; a.overloaded = true; }
     const landed = playerHit(G, ch, hh, origin, this.facing, a.startPos);
+    this.kit.afterHit(hh, a, landed);
     if (landed && a.def.special === 'powerGain') this.gainPower(ch, 8);
     if (landed && a.def.special === 'healParty') this.healParty(a.def.healPct ?? 0.1, ch.def.passive.healShield ?? 0); // 노아 E
     if (a.def.special === 'smallShield') { ch.shield = Math.min(ch.maxHp * 0.3, ch.shield + ch.maxHp * 0.05); }
@@ -523,6 +536,7 @@ export class Party {
       a.landT = a.t;
       this.G.cam.shake(a.moveKind === 'jumpHeavy' ? 0.45 : 0.2, 0.2);
       this.G.sfx.play('land');
+      this.kit.onLand(a);
     }
   }
 
@@ -548,6 +562,7 @@ export class Party {
     this.perfectUsed = false;
     this.G.sfx.play('dodge');
     this.G.fx.ghost(this.pos, this.facing, 0xffffff);
+    this.kit.markDodge();
   }
 
   tryDash(dir) {
@@ -561,6 +576,7 @@ export class Party {
     this.dodgeStart = this.G.time;
     this.perfectUsed = false;
     this.G.sfx.play('dodge');
+    this.kit.markDash();
   }
 
   trySkill(key, dir) {
@@ -575,7 +591,7 @@ export class Party {
       if (ch.cd[key] > 0) return;
       if (this.ether < def.cost) { G.hud.toast('에테르 부족', '#8fd3ff', 0.6); return; }
       this.ether -= def.cost;
-      ch.cd[key] = def.cd;
+      ch.cd[key] = def.cd * this.kit.cdMul(ch, key);
     }
     if (!this.grounded && !def.cutin) { /* 공중 스킬 허용 */ }
     this.startMove(def, key === 'r' ? 'ult' : 'skill', dir);
@@ -611,14 +627,16 @@ export class Party {
     G.hud.onSwap();
     // 제 3권능: 태그 시 지속 치유 + 정화
     if (prev.def.power === 3 || ch.def.power === 3) { this.heal(ch, ch.maxHp * 0.05); this.cleanse(); }
-    // 제 5권능: 태그 교체 시 이전 캐릭터의 모멘텀으로 즉시 가속 참격
-    if (ch.def.power === 5 && forceIdx === null) this.startMove(ENTRY_SLASH, 'entry', null);
+    // 지원 스킬 (kit.js) — 쿨타임 중이면 제 5권능은 기존 가속 참격
+    const assisted = forceIdx === null && this.kit.onSwapIn(ch);
+    if (!assisted && ch.def.power === 5 && forceIdx === null) this.startMove(ENTRY_SLASH, 'entry', null);
   }
 
   // ---------------------------------------------------------
   heal(m, amount, silent = false) {
     if (!m.alive) return;
     const before = m.hp;
+    amount *= this.kit?.healMul() ?? 1;
     m.hp = Math.min(m.maxHp, m.hp + amount);
     if (!silent && m === this.active && m.hp > before) {
       this.G.hud.damageNumber(this.chest(), Math.round(m.hp - before), false, false, 'heal');
@@ -644,6 +662,7 @@ export class Party {
     for (const m of this.members) if (m.alive) m.shield = Math.min(m.maxHp * 0.4, m.shield + m.maxHp * pct);
     this.G.fx.dome(this.pos, powerColor(3, 1), 2.6, 0.7);
     this.G.sfx.play('heal');
+    this.kit?.onShieldGiven();
   }
 
   receiveHit(dmg, source) {
@@ -659,6 +678,7 @@ export class Party {
     // 패링 (리아 강공격)
     if (a?.kind === 'move' && a.parry && a.t <= a.def.parry[1]) {
       this.parrySuccess(source, a.def.parryInfo);
+      this.kit.onParry(a, source);
       return;
     }
     if (this.buffs.evade > 0 && Math.random() < 0.3) { G.hud.toast('회피!', '#bfeff0', 0.4); return; } // 노아 장막
@@ -669,10 +689,13 @@ export class Party {
       }
       return;
     }
-    let d = Math.round(dmg * (100 / (100 + ch.def.stats.def)) * (0.9 + Math.random() * 0.2));
+    if (this.kit.tryBlock(ch)) return;          // 노아 장막 각성 · 시엔 잔영
+    this.kit.onPartyHurt(source);               // 리아 '자애의 응답'
+    let d = Math.round(dmg * (100 / (100 + ch.def.stats.def)) * (0.9 + Math.random() * 0.2) * this.kit.dmgTakenMul(ch));
     if (ch.shield > 0) {
       const ab = Math.min(ch.shield, d);
       ch.shield -= ab; d -= ab;
+      if (ch.shield <= 0) this.kit.onShieldBreak(ch);
     }
     ch.hp -= d;
     G.hud.damageNumber(this.chest(), d, false, false, 'hurt');
@@ -701,6 +724,7 @@ export class Party {
     const ch = this.active;
     this.perfectUsed = true;
     G.hud.toast('완벽 회피!', '#fff3a0');
+    this.kit.onPerfect();
     G.sfx.play('perfect');
     G.slowEnemies(1.4, 0.2);
     this.gainUlt(ch, 12);
