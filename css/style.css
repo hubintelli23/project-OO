@@ -450,3 +450,11 @@ body.touch .pe-grid { grid-template-columns: repeat(3, 1fr); gap: 5px; }
 body.touch .pe-card { padding: 6px 8px; }
 body.touch .pe-w, body.touch .pe-i-k { display: none; }
 body.touch .pe-info { min-height: 0; font-size: 11px; }
+
+/* 타이틀에서 파티 편성 (v1.5.1) */
+#title { overflow-y: auto; place-items: start center; }
+.title-inner { margin: auto 0; padding: 14px 0; }
+.roster-label { margin: 6px 0 0; color: var(--teal); }
+#title-roster .ro { cursor: pointer; transition: transform .12s, box-shadow .12s; }
+#title-roster .ro:hover { transform: translateY(-2px); box-shadow: 0 0 0 1px var(--c), 0 6px 18px rgba(0,0,0,.4); }
+.t-party { border-color: var(--teal); color: var(--teal); padding: 14px 22px; }

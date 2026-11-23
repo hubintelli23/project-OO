@@ -2,7 +2,7 @@
 //  Project OO — 전역 설정
 //  버전 / 조작키 / 홀딩 기준 / 물리·전투 상수
 // =============================================================
-export const VERSION = '1.5.0';
+export const VERSION = '1.5.1';
 export const GAME_TITLE = 'Project OO';
 
 // 좌클릭 홀딩 → 강공격 판정 기준(초)

@@ -1,4 +1,4 @@
-# Project OO — 액션 JRPG 전투 체험판 v1.5.0
+# Project OO — 액션 JRPG 전투 체험판 v1.5.1
 
 3인칭 백뷰(명조: 워더링 웨이브 스타일) 웹 액션 JRPG. three.js(CDN) 사용.
 

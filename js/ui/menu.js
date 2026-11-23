@@ -46,6 +46,7 @@ export class Menu {
   buildTitle() {
     this.renderRoster();
     this.buildPartyEdit();
+    $('title-roster').addEventListener('click', () => { this.G.sfx.init(); this.G.sfx.play('ui'); this.openPartyEdit(); });
 
     document.querySelectorAll('.gender button').forEach(b => {
       b.addEventListener('click', () => {

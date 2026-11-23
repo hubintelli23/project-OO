@@ -1,7 +1,30 @@
 {
   "project": "Project OO",
-  "current": "1.5.0",
+  "current": "1.5.1",
   "updates": [
+    {
+      "version": "1.5.1",
+      "date": "2026-11-22",
+      "title": "타이틀 파티 편성 접근성",
+      "changes": [
+        {
+          "type": "변경",
+          "text": "타이틀의 출전 파티 카드를 누르면 바로 편성 화면이 열림 (안내 문구 추가, 파티 편성 버튼 강조)",
+          "files": [
+            "js/ui/menu.js",
+            "index.html",
+            "css/style.css"
+          ]
+        },
+        {
+          "type": "수정",
+          "text": "창 높이가 낮은 PC에서 타이틀 아래쪽(편성·시작 버튼)이 잘리던 문제 — 타이틀 화면 스크롤 가능",
+          "files": [
+            "css/style.css"
+          ]
+        }
+      ]
+    },
     {
       "version": "1.5.0",
       "date": "2026-11-22",
