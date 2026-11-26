@@ -505,3 +505,26 @@ body.touch #chain-hint kbd { display: none; }
 @media (max-width: 760px) { .st-grid { grid-template-columns: 1fr; } }
 .sk-name { max-width: 80px; overflow: hidden; text-overflow: ellipsis; }
 .sk.ult .sk-name { max-width: 96px; }
+
+/* ================= v1.7.0 — 스킬 트리 소속 분류 · 편집 모드 · 마스터 타이틀 ================= */
+.st-groups { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 12px; }
+.st-groups button { padding: 4px 10px; border-radius: 6px; border: 1px solid var(--line); background: transparent; color: var(--dim); cursor: pointer; font: inherit; font-size: 12px; }
+.st-groups button.on { color: #fff; border-color: #c9b8ff; background: rgba(201,184,255,.14); }
+.st-edit { color: #ffe14d; }
+.st-editbar { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; padding: 8px; border: 1px dashed rgba(255,225,77,.5); border-radius: 8px; }
+.st-editbar button { padding: 5px 10px; border-radius: 6px; border: 1px solid rgba(255,225,77,.6); background: transparent; color: #ffe14d; cursor: pointer; font: inherit; font-size: 12px; }
+.st-branch p.st-fx { color: #8fa3b8; font-size: 11px; }
+.st-kit h4 small { color: var(--dim); font-weight: 400; }
+#master-panel.title-mode .ms-game { display: none; }
+#master-panel .ms-tree-ch { width: 100%; }
+#master-panel .ms-tb { align-items: center; }
+#master-panel .ms-tb .ms-l { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#master-panel .ms-tb b { min-width: 34px; text-align: right; font-size: 11px; color: #ffe14d; }
+#master-panel .ms-tb button { min-width: 26px; padding: 2px 6px; }
+#master-panel .ms-sec small { color: var(--dim); font-weight: 400; }
+body.master #title .title-inner { margin-left: 260px; }
+.pe-groups { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; }
+.pe-groups button { padding: 4px 10px; border-radius: 6px; border: 1px solid var(--line); background: transparent; color: var(--dim); cursor: pointer; font: inherit; font-size: 12px; }
+.pe-groups button.on { color: #fff; border-color: #1fb5a8; background: rgba(31,181,168,.14); }
+.pe-grid { max-height: 38vh; overflow-y: auto; padding-right: 4px; }
+.pe-gname { font-size: 10px; color: var(--dim); margin-top: 1px; }

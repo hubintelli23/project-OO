@@ -5,13 +5,18 @@
 //  모드 중 단축키 (숫자키 — 일반 조작키와 겹치지 않음)
 //    1 무적   2 쿨타임·에테르 무제한   3 궁극기 상시 충전   4 한 방 처치
 //    5 적 정지   6 판정 범위 표시   7 적 소환   8 보스 소환   9 파티 회복·부활   0 게임 속도
-//  패널: 권능 F 충전 · 스킬 포인트 +10 · 스킬 트리 초기화 (v1.6.0)
+//  패널: 권능 G 충전 · 스킬 포인트 +10 · 스킬 트리 초기화 (v1.6.0)
+//  v1.7.0: 메인 타이틀에서도 진입 가능 (` 키 · 휴대폰은 타이틀/설정의 버전 표시 5번 탭)
+//          스킬 트리 편집 — 캐릭터 선택 후 갈래 −/+ · 최종 강화 켜기/끄기 · 전원 최대/초기화 (포인트 무관)
 //  패널 버튼은 Esc(설정)로 마우스를 풀면 클릭할 수 있음 (휴대폰은 바로 터치)
 // =============================================================
 import * as THREE from 'three';
 import { COMBAT } from '../config.js';
 import { CAMPS, BOSS_ARENA } from '../data/enemies.js';
 import { Enemy } from '../game/enemy.js';
+import { CHARACTERS, ROSTER, GROUPS } from '../data/characters.js';
+import { KITS } from '../data/kits.js';
+import { TreeStore, TREE_MAX } from '../game/treestore.js';
 
 export const MASTER_KEY = 'Backquote';
 
@@ -35,9 +40,11 @@ export class MasterMode {
     this.collapsed = false;
     this.versionTaps = [];
     this.panel = document.getElementById('master-panel');
+    this.store = new TreeStore(G);
+    this.treeId = ROSTER[0];
     this.build();
-    // 휴대폰: 설정 화면 버전 표시 5연속 탭
-    document.querySelectorAll('#settings [data-version]').forEach(el => {
+    // 휴대폰: 타이틀·설정 화면 버전 표시 5연속 탭
+    document.querySelectorAll('#settings [data-version], #title [data-version]').forEach(el => {
       el.addEventListener('click', () => {
         const now = performance.now();
         this.versionTaps = this.versionTaps.filter(t => now - t < 2000);
@@ -56,6 +63,13 @@ export class MasterMode {
     p.innerHTML = `
       <div class="ms-head"><b>MASTER MODE</b><span class="ms-sub">테스트 모드 · <kbd>\`</kbd> 종료</span><button class="ms-fold" data-m="fold">－</button></div>
       <div class="ms-body">
+        <div class="ms-sec">스킬 트리 편집 <small>(포인트 무관)</small></div>
+        <div class="ms-row"><select class="ms-tree-ch">${GROUPS.map(g => `<optgroup label="${g.name}">${g.ids.map(id => `<option value="${id}">${CHARACTERS[id].short ?? CHARACTERS[id].name}</option>`).join('')}</optgroup>`).join('')}</select></div>
+        <div class="ms-tree"></div>
+        <div class="ms-row"><button data-m="tr:max">이 캐릭터 최대</button><button data-m="tr:clear">이 캐릭터 0</button></div>
+        <div class="ms-row"><button data-m="tr:maxAll">전원 최대</button><button data-m="tr:clearAll">전원 0</button><button data-m="tr:sp">포인트 +10</button></div>
+        <div class="ms-row"><button data-m="tr:open">스킬 트리 화면 (편집 모드)</button></div>
+        <div class="ms-game">
         <div class="ms-sec">토글</div>
         ${FLAGS.map(([k, label, code]) => `<button class="ms-t" data-flag="${k}"><kbd>${code.slice(5)}</kbd>${label}</button>`).join('')}
         <button class="ms-t" data-m="speed"><kbd>0</kbd>게임 속도 <b class="ms-speed">x1</b></button>
@@ -70,23 +84,40 @@ export class MasterMode {
         <div class="ms-row"><button data-m="clearDebug">소환한 적 제거</button><button data-m="resetRun">진영 초기화</button></div>
         <div class="ms-sec">파티</div>
         <div class="ms-row"><button data-m="heal"><kbd>9</kbd>회복·부활</button><button data-m="ult">궁극기 충전</button></div>
-        <div class="ms-row"><span class="ms-l">권능</span><button data-m="pw0">1단계</button><button data-m="pw1">2단계</button><button data-m="pw2">3단계</button><button data-m="pwFull">F 충전</button></div>
+        <div class="ms-row"><span class="ms-l">권능</span><button data-m="pw0">1단계</button><button data-m="pw1">2단계</button><button data-m="pw2">3단계</button><button data-m="pwFull">G 충전</button></div>
         <div class="ms-row"><span class="ms-l">트리</span><button data-m="sp10">스킬 포인트 +10</button><button data-m="treeReset">트리 초기화</button></div>
         <div class="ms-row"><span class="ms-l">아이템</span><button data-m="it:ether">에테르</button><button data-m="it:crystal">결정</button><button data-m="it:essence">정수</button><button data-m="it:gale">깃털</button></div>
         <div class="ms-sec">이동</div>
         <div class="ms-row"><button data-m="tp:start">시작</button>${CAMPS.map((c, i) => `<button data-m="tp:${i}">${c.name.split(' ')[0]}</button>`).join('')}<button data-m="tp:boss">제단</button></div>
+        </div>
         <div class="ms-sec">정보</div>
         <pre class="ms-info"></pre>
       </div>`;
     this.info = p.querySelector('.ms-info');
     this.speedEl = p.querySelector('.ms-speed');
     p.querySelector('.ms-type').addEventListener('change', e => { this.spawnType = e.target.value; });
+    this.treeSel = p.querySelector('.ms-tree-ch');
+    this.treeBox = p.querySelector('.ms-tree');
+    this.treeSel.addEventListener('change', e => { this.treeId = e.target.value; this.renderTree(); });
     p.addEventListener('click', e => {
       const b = e.target.closest('button');
       if (!b) return;
       if (b.dataset.flag) this.toggleFlag(b.dataset.flag);
       else if (b.dataset.m) this.action(b.dataset.m);
     });
+  }
+
+  /** 패널의 스킬 트리 편집 목록 */
+  renderTree() {
+    const id = this.treeId;
+    const k = KITS[id];
+    if (!k || !this.treeBox) return;
+    const lv = this.store.read().levels[id] ?? {};
+    this.treeBox.innerHTML = k.tree.map(b => `<div class="ms-row ms-tb"><span class="ms-l" title="${b.desc}">${b.name}</span><b>${lv[b.id] ?? 0}/${TREE_MAX}</b>
+        <button data-m="tb:${b.id}:-1">−</button><button data-m="tb:${b.id}:1">+</button></div>`).join('')
+      + `<div class="ms-row ms-tb"><span class="ms-l">최종 강화</span><b>${lv.final ? 'ON' : 'OFF'}</b><button data-m="tb:final:${lv.final ? -1 : 1}">${lv.final ? '끄기' : '켜기'}</button></div>`
+      + `<div class="ms-row ms-tb"><span class="ms-l">스킬 포인트</span><b>${this.store.read().sp}</b></div>`;
+    this.G.skillTree?.root.classList.contains('on') && this.G.skillTree.render();
   }
 
   toggle(force) {
@@ -96,6 +127,8 @@ export class MasterMode {
     this.G.hud?.toast(this.on ? '마스터 모드 진입' : '마스터 모드 종료', this.on ? '#ffe14d' : '#9aa8b8');
     this.G.sfx.play('ui');
     this.refresh();
+    this.renderTree();
+    if (this.G.skillTree?.root.classList.contains('on')) this.G.skillTree.render();
   }
 
   toggleFlag(k) {
@@ -116,7 +149,8 @@ export class MasterMode {
     const G = this.G;
     const P = G.party;
     if (m === 'fold') { this.collapsed = !this.collapsed; this.refresh(); return; }
-    if (!P) return;
+    if (m.startsWith('tb:') || m.startsWith('tr:')) { this.treeAction(m); return; }
+    if (!P || G.state === 'title') return;
     const front = (d = 6) => new THREE.Vector3(P.pos.x + Math.sin(P.facing) * d, 0, P.pos.z + Math.cos(P.facing) * d);
     if (m === 'speed') {
       this.speedIdx = (this.speedIdx + 1) % SPEEDS.length;
@@ -147,7 +181,7 @@ export class MasterMode {
       for (const ch of P.members) ch.ult = COMBAT.ultMax;
     } else if (m === 'pwFull') {
       for (const ch of P.members) ch.power = COMBAT.powerMax;
-      G.hud.toast('권능 게이지 100% — F 권능 스킬', '#ffe14d', 0.8);
+      G.hud.toast('권능 게이지 100% — G 권능 스킬', '#ffe14d', 0.8);
     } else if (m === 'sp10') {
       P.kit.sp += 10; P.kit.save();
       G.hud.toast(`스킬 포인트 ${P.kit.sp}`, '#ffe14d', 0.8);
@@ -169,12 +203,26 @@ export class MasterMode {
     }
   }
 
+  treeAction(m) {
+    const st = this.store;
+    const [, a, b] = m.split(':');
+    if (m.startsWith('tb:')) st.set(this.treeId, a, +b);
+    else if (a === 'max') st.maxOut([this.treeId]);
+    else if (a === 'clear') st.clear([this.treeId]);
+    else if (a === 'maxAll') st.maxOut(ROSTER);
+    else if (a === 'clearAll') st.clear(ROSTER);
+    else if (a === 'sp') st.addSP(10);
+    else if (a === 'open') this.G.skillTree?.show(true, this.treeId);
+    this.G.sfx.play('ui');
+    this.renderTree();
+  }
+
   // ---------------------------------------------------------
   update(input) {
     const G = this.G;
-    if (G.state === 'title') return;
     if (input.wasPressed(MASTER_KEY)) this.toggle();
-    if (!this.on || !G.party) return;
+    this.panel.classList.toggle('title-mode', G.state === 'title' || !G.party);
+    if (!this.on || !G.party || G.state === 'title') return;
 
     if (G.state === 'play' && input.locked) {
       for (const [k, , code] of FLAGS) if (input.wasPressed(code)) this.toggleFlag(k);

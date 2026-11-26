@@ -1,6 +1,6 @@
 // =============================================================
 //  추가 전투 키트 — 「PROJECT OO 등장인물 능력 수정본」(md) 기준
-//  9명 전원: 특수공격 5종 / 지원 스킬 / 권능 스킬 F / 스킬 트리 / 인연 시너지
+//  39명 전원(30명은 doc-builder.js): 특수공격 5종 / 지원 스킬 / 권능 스킬 G / 스킬 트리 / 인연 시너지
 //
 //  입력 (통일 조작키 유지 — 새 키 없음)
 //   특수공격 1 : 회피(Shift) 직후 좌클릭
@@ -8,12 +8,14 @@
 //   연계 A     : 기본 4타·특수공격 1 직후 좌클릭 (캐릭터별 조건은 chainA.after)
 //   연계 B     : 특수공격 2 직후, 또는 조건 충족 시 좌클릭 홀딩 (리아는 자동)
 //   공중 특수  : Space + Ctrl + 좌클릭 (기존 점프 강공격 자리)
-//   권능 스킬  : F — 권능 게이지 100%일 때 (근처에 줍거나 열 것이 있으면 상호작용 우선)
+//   권능 스킬  : G — 권능 게이지 100%일 때 (v1.7.0, 이전 F)
 //   지원 스킬  : Tab 교체 시 들어오는 캐릭터가 자동 발동 (캐릭터별 쿨타임)
 //
 //  ※ 피해 배율·시간·쿨타임은 기획서에 수치가 없어 게임용으로 정한 임시 값
 //  ※ special 키는 js/game/kit.js 에서 처리
 // =============================================================
+
+import { DOC_BUILT } from './doc-builder.js';
 
 const slash = (tilt, radius = 2.4, len = 150, extra = {}) => ({ type: 'slash', tilt, radius, len, ...extra });
 const thrust = len => ({ type: 'thrust', len });
@@ -60,7 +62,7 @@ export const KITS = {
       { id: 'break', name: '파쇄 강화', desc: '방막·가드 피해', fx: { guard: 1 } },
       { id: 'abyss', name: '심연 강화', desc: '공허 추가타 피해·에레보스 각성 시간', fx: { power: 1 } },
     ],
-    final: { name: '단절의 종착점', desc: '방막이 파괴된 적을 공격하면 공허 파동(각성 중 위력·범위↑). F 발동 시 최종 연출.',
+    final: { name: '단절의 종착점', desc: '방막이 파괴된 적을 공격하면 공허 파동(각성 중 위력·범위↑). G 발동 시 최종 연출.',
       move: { name: '단절의 종착점', dur: 1.1, cancelAt: 1.0, swing: 'spin', swingAt: [0.1, 0.8], superArmor: true, iframe: [0, 1.1],
         hits: [...times([0.2, 0.35, 0.5, 0.65], (t, i) => ({ t, shape: 'circle', range: 6, dmg: 0.8, guard: 30, fx: slash(i % 2 ? 0.7 : -0.7, 4.5, 360) })),
           { t: 0.9, shape: 'circle', range: 8, dmg: 2.8, guard: 90, kb: 'knock', kbPow: 12, fx: { type: 'wave', stage: 2, radius: 8 } }] } },
@@ -98,7 +100,7 @@ export const KITS = {
       { id: 'purify', name: '정화 강화', desc: '파티가 받는 피해 감소', fx: { dmgTaken: 1 } },
       { id: 'reson', name: '공명 강화', desc: '에테르 회복 속도', fx: { ether: 1 } },
     ],
-    final: { name: '영원한 성역', desc: '보호막이 깨지면 온기 파동으로 파티 회복(체력 위험 시 강화). F 발동 시 최종 연출.',
+    final: { name: '영원한 성역', desc: '보호막이 깨지면 온기 파동으로 파티 회복(체력 위험 시 강화). G 발동 시 최종 연출.',
       move: { name: '영원한 성역', dur: 1.0, cancelAt: 0.9, swing: 'cast', swingAt: [0.1, 0.6], superArmor: true, iframe: [0, 1.0], special: 'finalHeal',
         hits: [{ t: 0.6, shape: 'circle', range: 8, dmg: 2.2, guard: 60, kb: 'knock', kbPow: 9, fx: { type: 'dome', stage: 2, radius: 6 } }] } },
   },
@@ -135,7 +137,7 @@ export const KITS = {
       { id: 'after', name: '잔영 강화', desc: '잔영 회피 확률', fx: { evade: 1 } },
       { id: 'arc', name: '아크 강화', desc: '아크 번개 피해', fx: { arc: 1 } },
     ],
-    final: { name: '초월의 궤적', desc: '궤적 10개 이상이면 「초월」 — 특수공격·아크 위력 +30%. F 발동 시 최종 연출.',
+    final: { name: '초월의 궤적', desc: '궤적 10개 이상이면 「초월」 — 특수공격·아크 위력 +30%. G 발동 시 최종 연출.',
       move: { name: '초월의 궤적', dur: 1.1, cancelAt: 1.0, swing: 'spin', swingAt: [0.05, 0.9], superArmor: true, iframe: [0, 1.1], special: 'converge', finale: true,
         hits: times([0.15, 0.3, 0.45, 0.6], (t, i) => ({ t, shape: 'circle', range: 5.5, dmg: 0.7, guard: 20, fx: slash(i % 2 ? 0.4 : -0.4, 4, 360) })) } },
   },
@@ -175,7 +177,7 @@ export const KITS = {
       { id: 'phantom', name: '환영 기동', desc: 'Q·E 피해·쿨타임', fx: { skill: 1, skillCd: 1 } },
       { id: 'zaphiel', name: '궤적 각성', desc: '자피엘 각성 시간·궤적', fx: { power: 1, trail: 1 } },
     ],
-    final: { name: '섬광의 종착점', desc: 'F 발동 시 잔향 궤적을 따라 연속 이동하며 약점을 관통하는 최종 연출.',
+    final: { name: '섬광의 종착점', desc: 'G 발동 시 잔향 궤적을 따라 연속 이동하며 약점을 관통하는 최종 연출.',
       move: { name: '섬광의 종착점', dur: 1.0, cancelAt: 0.9, swing: 'thrust', swingAt: [0.05, 0.8], dash: [30, 0.6], iframe: [0, 1.0], superArmor: true, special: 'trailPath',
         hits: [...times([0.12, 0.24, 0.36, 0.48, 0.6], t => ({ t, shape: 'path', width: 3, dmg: 0.6, guard: 14 })),
           { t: 0.8, shape: 'circle', range: 6, dmg: 2.4, guard: 60, kb: 'knock', kbPow: 10, fx: { type: 'wave', stage: 2, radius: 6 } }] } },
@@ -214,7 +216,7 @@ export const KITS = {
       { id: 'purify', name: '정화와 결계', desc: 'Q·E 효과·쿨타임', fx: { skill: 1, skillCd: 1 } },
       { id: 'ermia', name: '에르미아의 공명', desc: '회복량·룬 오라 시간', fx: { heal: 1, power: 1 } },
     ],
-    final: { name: '절대 정화의 진형', desc: 'F 발동 시 전장에 정화 룬을 연결 — 파티 보호막·회복 + 정화 폭발.',
+    final: { name: '절대 정화의 진형', desc: 'G 발동 시 전장에 정화 룬을 연결 — 파티 보호막·회복 + 정화 폭발.',
       move: { name: '절대 정화의 진형', dur: 1.0, cancelAt: 0.9, swing: 'cast', swingAt: [0.1, 0.6], superArmor: true, iframe: [0, 1.0], special: 'finalHeal',
         hits: [{ t: 0.6, shape: 'circle', range: 9, dmg: 2.2, guard: 50, kb: 'knock', kbPow: 9, fx: { type: 'dome', stage: 2, radius: 7 } }] } },
   },
@@ -250,7 +252,7 @@ export const KITS = {
       { id: 'veil', name: '은영 장막', desc: 'Q·E 효과·쿨타임', fx: { skill: 1, skillCd: 1 } },
       { id: 'ermia', name: '에르미아의 장막', desc: '회복량·장막 각성 시간', fx: { heal: 1, power: 1 } },
     ],
-    final: { name: '영원한 수호의 장막', desc: 'F 발동 시 장막으로 파티를 감싸 회복·보호를 연속 전개.',
+    final: { name: '영원한 수호의 장막', desc: 'G 발동 시 장막으로 파티를 감싸 회복·보호를 연속 전개.',
       move: { name: '영원한 수호의 장막', dur: 1.0, cancelAt: 0.9, swing: 'cast', swingAt: [0.1, 0.6], superArmor: true, iframe: [0, 1.0], special: 'finalHeal',
         hits: [{ t: 0.6, shape: 'circle', range: 8, dmg: 2.0, guard: 50, kb: 'knock', kbPow: 9, fx: { type: 'dome', stage: 2, radius: 6 } }] } },
   },
@@ -288,7 +290,7 @@ export const KITS = {
       { id: 'press', name: '파동 제압', desc: 'Q·E 피해·쿨타임', fx: { skill: 1, skillCd: 1 } },
       { id: 'zaphiel', name: '자피엘 각성', desc: '각성 시간·파동 추가타', fx: { power: 1 } },
     ],
-    final: { name: '폭쇄의 종착점', desc: 'F 발동 시 연속 돌진과 파동 폭발을 결합한 최종 무투 연출.',
+    final: { name: '폭쇄의 종착점', desc: 'G 발동 시 연속 돌진과 파동 폭발을 결합한 최종 무투 연출.',
       move: { name: '폭쇄의 종착점', dur: 1.1, cancelAt: 1.0, swing: 'thrust', swingAt: [0.05, 0.8], dash: [28, 0.5], iframe: [0, 1.1], superArmor: true, special: 'trailPath',
         hits: [...times([0.12, 0.24, 0.36, 0.48], t => ({ t, shape: 'path', width: 3.2, dmg: 0.7, guard: 20, fx: { type: 'spark' } })),
           { t: 0.85, shape: 'circle', range: 7, dmg: 3.0, guard: 90, kb: 'knock', kbPow: 13, fx: { type: 'wave', stage: 2, radius: 7.5 } }] } },
@@ -325,7 +327,7 @@ export const KITS = {
       { id: 'pend', name: '펜듈럼 전개', desc: 'Q·E 피해·쿨타임', fx: { skill: 1, skillCd: 1 } },
       { id: 'ares', name: '아레스티아의 파쇄', desc: '가드 파쇄·입자 각성', fx: { guard: 1, power: 1 } },
     ],
-    final: { name: '천상의 심판', desc: 'F 발동 시 펜듈럼을 거대한 집속 진형으로 연결 — 방어를 관통하는 최종 포격.',
+    final: { name: '천상의 심판', desc: 'G 발동 시 펜듈럼을 거대한 집속 진형으로 연결 — 방어를 관통하는 최종 포격.',
       move: { name: '천상의 심판', dur: 1.2, cancelAt: 1.1, swing: 'cast', swingAt: [0.1, 0.9], superArmor: true, iframe: [0, 1.2], special: 'judgment',
         hits: [{ t: 0.9, shape: 'line', range: 24, width: 4.5, dmg: 4.0, guard: 150, ignoreGuard: true, kb: 'knock', kbPow: 10, fx: { type: 'line', len: 24 } }] } },
   },
@@ -362,13 +364,16 @@ export const KITS = {
       { id: 'bind', name: '환영 구속', desc: 'Q·E·특수공격 피해', fx: { skill: 1, special: 1 } },
       { id: 'zaphiel', name: '자피엘의 잔향', desc: '궤적·집행 오버드라이브', fx: { trail: 1, power: 1 } },
     ],
-    final: { name: '무한 집행의 감옥', desc: 'F 발동 시 사슬 궤적으로 적을 포획하고 환영 낫으로 일제히 절단.',
+    final: { name: '무한 집행의 감옥', desc: 'G 발동 시 사슬 궤적으로 적을 포획하고 환영 낫으로 일제히 절단.',
       move: { name: '무한 집행의 감옥', dur: 1.2, cancelAt: 1.1, swing: 'spin', swingAt: [0.05, 1.0], superArmor: true, iframe: [0, 1.2],
         hits: [{ t: 0.2, shape: 'circle', range: 12, dmg: 1.0, guard: 30, kb: 'pull', kbPow: 1.4, debuff: 'bind', debuffDur: 1.2, fx: { type: 'implode', radius: 12 } },
           ...times([0.5, 0.65, 0.8], t => ({ t, shape: 'circle', range: 6.5, dmg: 1.0, guard: 30, multiScale: true, fx: slash(0, 5, 360) })),
           { t: 0.98, shape: 'circle', range: 7, dmg: 2.6, guard: 80, multiScale: true, kb: 'knock', kbPow: 12, fx: { type: 'wave', stage: 2, radius: 7 } }] } },
   },
 };
+
+// 등장인물 능력 수정본의 나머지 30명 — doc-builder.js 가 문서 이름·설명으로 생성
+for (const [id, b] of Object.entries(DOC_BUILT)) KITS[id] = b.kit;
 
 // 시엔 Q·E·궁극기 이름/구성 — 수정본 기준으로 교체 (빈 필드는 기존 유지)
 export const SKILL_OVERRIDES = {
@@ -394,12 +399,45 @@ export const SYNERGIES = {
   moon: {
     name: '현월의 궤적', group: '현월기사단', members: ['iris', 'charl', 'noa', 'cael'],
     two: { name: '교차하는 잔향', desc: '현월기사단 캐릭터 이동·공격 속도 +10%. 후방 공격·방막 파괴 시 8초간 파티 공격력 증가. 샤를·노아가 보호막을 주면 다음 공격에 파동 추가타.' },
+    reson: { name: '현월 공명', color: 0x8ff0e6, addon: { charl: 'shield', noa: 'heal' } },
     three: { name: '현월의 진형', desc: '연속 적중 시 「현월 공명」 중첩 — 12중첩이면 현월 파동(자세 붕괴·추가 피해). 이리스: 공명 대상 후방 공격 시 추가 찌르기 / 샤를: 발동 시 파티 보호막 / 노아: 발동 시 파티 회복 / 카엘: 공명 대상에게 파동 추가 피해.' },
   },
   council: {
     name: '아카데미의 질서', group: '학생중앙회', members: ['lucian', 'beatrice', 'tristan', 'chloe'],
     two: { name: '학생회의 연계', desc: '학생중앙회 캐릭터 공격력·방어력 +10%. 가드 파쇄·속박 성공 시 8초간 파티 공격력 증가. 속박·흡인을 건 뒤 다음 공격 피해 +20%.' },
-    three: { name: '완전한 학생회 진형', desc: '(트리스탄·클로에가 아직 플레이어블이 아니라 현재 편성 불가)' },
+    three: { name: '완전한 학생회 진형', desc: '연속 적중 시 「학생회 공명」 중첩 — 12중첩이면 공명 발동(추가 피해·자세 붕괴). 루시안: 공명 대상에게 입자 레이저 / 베아트리스: 발동 시 주변 적 끌어당김 / 트리스탄: 발동 시 파티 보호막 / 클로에: 발동 시 정화 + 결계 보호.' },
+    reson: { name: '학생회 공명', color: 0xe0b84a, addon: { lucian: 'laser', beatrice: 'pull', tristan: 'shield', chloe: 'cleanse' } },
+  },
+  student: {
+    name: '재학생연합 인연', group: '재학생연합', members: ['ethan', 'leo', 'myla', 'olivia'],
+    two: { name: '함께하는 전선', desc: '파티 공격력·방어력 소폭 증가. 가드 파쇄·자세 붕괴 성공 시 6초간 파티 공격 속도 증가.' },
+    three: { name: '재학생연합 전술 공명', desc: '공격 적중마다 전술 공명 중첩 — 12중첩이면 공명 발동(추가 피해·자세 붕괴). 에단: 검기 추가 파쇄 / 레오: 파티 에테르 차폐막(보호막) / 마일라: 분신 추가 사격 / 올리비아: 잔향 가속(공속·스킬 회복).' },
+    reson: { name: '전술 공명', color: 0x9be15d, addon: { ethan: 'slash', leo: 'shield', myla: 'shots', olivia: 'haste' } },
+  },
+  faculty: {
+    name: '아카데미 교직원 인연', group: '아카데미 교직원', members: ['balder', 'genesis', 'selena', 'sigmund'],
+    two: { name: '교직원의 협력 지도', desc: '교직원 캐릭터가 스킬을 적중시키면 교직원의 다음 공격 피해 +20% (적중 시 소모).' },
+    three: { name: '아카데미 최종 교관진', desc: '교직원 공격 적중 시 적에게 「교관의 제압 표식」 — 표식 대상은 교직원에게 받는 피해 +15%, 표식 대상 공격 시 에테르 회복.' },
+  },
+  dusk: {
+    name: '황혼의 순환', group: '신성제단 – 황혼제단', members: ['velian', 'ravien', 'elysia'],
+    two: { name: '황혼의 순환', desc: '공격·방어 전환 효율 증가 — 황혼제단 캐릭터 공격력 +8%, 받는 피해 -8%.' },
+    three: { name: '황혼의 순환 강화', desc: '황혼제단 캐릭터끼리 교체할 때 에테르(신성력) 15 회복.' },
+  },
+  gloom: {
+    name: '그믐의 장막', group: '신성제단 – 그믐제단', members: ['morven', 'nivella', 'orpel'],
+    two: { name: '그믐의 장막', desc: '약화 효과(디버프)가 걸린 적에게 주는 피해 +15%.' },
+    three: { name: '그믐의 표식', desc: '약화된 적을 공격하면 30% 확률로 그믐의 표식 — 5중첩이면 침식 피해 폭발.' },
+  },
+  sunKnight: {
+    name: '성휘의 진군', group: '성휘기사단', members: ['gabriela', 'aurelius', 'serstia', 'rafiel'],
+    two: { name: '성휘의 진군', desc: '파티 공격력 +10%, 받는 피해 -10%.' },
+    three: { name: '성휘의 진군 (3명)', desc: '자세(방막) 피해 +20%. (4명 편성 효과는 파티가 3명이라 미적용)' },
+  },
+  moonKnight: {
+    name: '월영의 기만', group: '월영기사단', members: ['velibar', 'morgana', 'zahik', 'lilith'],
+    two: { name: '월영의 기만', desc: '적에게 거는 약화 효과 지속시간 +50%, 후방(기습) 공격 피해 +15%.' },
+    three: { name: '월영의 기만 (3명)', desc: '약화된 적을 공격하면 방어력 감소(저주)가 추가로 걸림. (4명 편성 효과는 파티가 3명이라 미적용)' },
   },
 };
 

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Project OO · index.html v1.6.0 -->
+<!-- Project OO · index.html v1.7.0 -->
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
@@ -7,11 +7,11 @@
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="theme-color" content="#0b0f15" />
-  <meta name="version" content="1.6.0" />
-  <title>Project OO v1.6.0</title>
+  <meta name="version" content="1.7.0" />
+  <title>Project OO v1.7.0</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=Noto+Serif+KR:wght@600;900&display=swap" />
-  <link rel="stylesheet" href="css/style.css?v=1.6.0" />
+  <link rel="stylesheet" href="css/style.css?v=1.7.0" />
   <script type="importmap">
     { "imports": {
         "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
@@ -103,7 +103,7 @@
           <button data-g="f">카일라 <small>여</small></button>
         </div>
       </div>
-      <div class="pick-label roster-label">출전 파티 — 카드를 눌러 바로 편성 (9명 중 3명 · 역할 무관)</div>
+      <div class="pick-label roster-label">출전 파티 — 카드를 눌러 바로 편성 (39명 중 3명 · 역할 무관)</div>
       <div id="title-roster"></div>
       <button id="btn-party-edit" class="ghost t-party">파티 편성</button>
       <button id="btn-start" class="primary">전투 시작</button>
@@ -145,8 +145,9 @@
 
   <div id="party-edit" class="overlay">
     <div class="panel pe-panel">
-      <div class="panel-head"><h2>파티 편성</h2><span>9명 중 3명 · 역할 무관 자유 편성 · 순서 = 1번이 처음 출전</span></div>
+      <div class="panel-head"><h2>파티 편성</h2><span>39명 중 3명 · 역할 무관 자유 편성 · 순서 = 1번이 처음 출전</span></div>
       <div id="pe-slots" class="pe-slots"></div>
+      <div id="pe-groups" class="pe-groups"></div>
       <div id="pe-grid" class="pe-grid"></div>
       <div id="pe-info" class="pe-info"></div>
       <div class="panel-actions"><button id="btn-pe-reset" class="ghost">기본 편성</button><button id="btn-pe-close" class="primary">확인</button></div>
@@ -165,7 +166,8 @@
 
   <div id="skilltree" class="overlay">
     <div class="panel st-panel">
-      <div class="panel-head"><h2>스킬 트리</h2><span>적 처치 1 · 보스 5 포인트 · 파티 공용 · ● 출전 중</span></div>
+      <div class="panel-head"><h2>스킬 트리</h2><span>적 처치 1 · 보스 5 포인트 · 파티 공용 · ● 출전 중 · 마스터 모드에서는 편집 모드</span></div>
+      <div id="st-groups" class="st-groups"></div>
       <div id="st-top" class="st-top"></div>
       <div id="st-body" class="st-grid"></div>
       <div class="panel-actions"><button id="btn-tree-reset" class="ghost">포인트 되돌리기</button><button id="btn-tree-close" class="primary">닫기</button></div>
@@ -194,6 +196,6 @@
       el.style.display = 'block';
     });
   </script>
-  <script type="module" src="js/main.js?v=1.6.0"></script>
+  <script type="module" src="js/main.js?v=1.7.0"></script>
 </body>
 </html>

@@ -23,6 +23,22 @@ export const WEAPONS = {
   knuckle:    { name: '너클',              hands: 'RL' },
   pendulum:   { name: '마도 펜듈럼',       hands: 'RL' },
   chainScythe:{ name: '마도 환영 대체인',  hands: 'R' },
+  // v1.7.0 — 등장인물 30명 합류
+  hammer:     { name: '대형 해머',         hands: 'R' },
+  mace:       { name: '중메이스',          hands: 'R' },
+  towerShield:{ name: '대형 방패',         hands: 'L' },
+  scythe:     { name: '대낫',              hands: 'R' },
+  wrench:     { name: '렌치',              hands: 'R' },
+  chain:      { name: '마도 사슬',         hands: 'R' },
+  crystalStaff:{ name: '수정 지팡이',      hands: 'R' },
+  scepter:    { name: '봉인 의장',         hands: 'R' },
+  tome:       { name: '마도서',            hands: 'L' },
+  chalice:    { name: '성배',              hands: 'L' },
+  mirror:     { name: '환영 거울',         hands: 'L' },
+  compass:    { name: '결계 컴퍼스',       hands: 'R' },
+  pistol:     { name: '마도 권총',         hands: 'RL' },
+  bow:        { name: '장궁',              hands: 'L' },
+  drone:      { name: '아티팩트 드론',     hands: '-' },
 };
 
 // 캐릭터 무기 세트 → 손별 무기
@@ -36,6 +52,21 @@ export const WEAPON_SETS = {
   knuckle: { R: 'knuckle', L: 'knuckle' },
   pendulum: { R: 'pendulum', L: 'pendulum' },
   chainScythe: { R: 'chainScythe' },
+  hammer: { R: 'hammer' },
+  scythe: { R: 'scythe' },
+  shieldMace: { R: 'mace', L: 'towerShield' },
+  greatShield: { R: 'sword', L: 'towerShield' },
+  wrench: { R: 'wrench', L: 'chalice' },
+  chain: { R: 'chain', L: 'chain' },
+  crystalStaff: { R: 'crystalStaff' },
+  scepter: { R: 'scepter' },
+  tomeStaff: { R: 'staff', L: 'tome' },
+  chaliceStaff: { R: 'staff', L: 'chalice' },
+  mirrorStaff: { R: 'crystalStaff', L: 'mirror' },
+  compassCard: { R: 'compass', L: 'tome' },
+  pistols: { R: 'pistol', L: 'pistol' },
+  bow: { L: 'bow' },
+  drone: { back: 'drone' },
 };
 
 // ---------- 무기 ----------
@@ -131,6 +162,98 @@ export function buildWeapon(type, look) {
       g.add(chain);
       break;
     }
+    // ---- v1.7.0 ----
+    case 'hammer': {
+      g.add(mesh(new THREE.CylinderGeometry(0.035, 0.035, 1.3, 6), darkMat, 0, -0.45, 0));
+      g.add(mesh(new THREE.BoxGeometry(0.42, 0.26, 0.26), mat(0x3a3d48, { metalness: 0.7, roughness: 0.35 }), 0, -1.12, 0));
+      g.add(mesh(new THREE.BoxGeometry(0.44, 0.06, 0.28), accMat, 0, -1.12, 0));
+      break;
+    }
+    case 'mace': {
+      g.add(mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.8, 6), darkMat, 0, -0.3, 0));
+      g.add(mesh(new THREE.DodecahedronGeometry(0.16), mat(0xd8d8e0, { metalness: 0.8, roughness: 0.3 }), 0, -0.76, 0));
+      break;
+    }
+    case 'towerShield': {
+      g.add(mesh(new THREE.BoxGeometry(0.07, 0.95, 0.62), mat(0xeceae2, { metalness: 0.5, roughness: 0.4 }), 0, -0.1, 0));
+      g.add(mesh(new THREE.BoxGeometry(0.08, 0.7, 0.08), accMat, 0.01, -0.1, 0));
+      g.add(mesh(new THREE.BoxGeometry(0.08, 0.08, 0.4), accMat, 0.01, 0.05, 0));
+      break;
+    }
+    case 'scythe': {
+      g.add(mesh(new THREE.CylinderGeometry(0.03, 0.03, 1.9, 6), darkMat, 0, -0.5, 0));
+      const b = mesh(new THREE.BoxGeometry(0.03, 0.9, 0.16), bladeMat, 0, -1.4, 0.4);
+      b.rotation.x = -1.2;
+      g.add(b);
+      break;
+    }
+    case 'wrench': {
+      g.add(mesh(new THREE.BoxGeometry(0.06, 0.8, 0.06), mat(0x8a8f99, { metalness: 0.8, roughness: 0.3 }), 0, -0.35, 0));
+      g.add(mesh(new THREE.TorusGeometry(0.1, 0.035, 6, 10, Math.PI * 1.5), mat(0x8a8f99, { metalness: 0.8, roughness: 0.3 }), 0, -0.82, 0));
+      break;
+    }
+    case 'chain': {
+      for (let i = 0; i < 6; i++) {
+        const l = mesh(new THREE.TorusGeometry(0.045, 0.012, 5, 10), accMat, 0, -0.1 - i * 0.09, 0);
+        l.rotation.y = i % 2 ? Math.PI / 2 : 0;
+        g.add(l);
+      }
+      g.add(mesh(new THREE.OctahedronGeometry(0.07), bladeMat, 0, -0.68, 0));
+      break;
+    }
+    case 'crystalStaff': {
+      g.add(mesh(new THREE.CylinderGeometry(0.028, 0.028, 1.6, 6), darkMat, 0, -0.3, 0));
+      g.add(mesh(new THREE.OctahedronGeometry(0.14), mat(look.accent, { emissive: look.accent, emissiveIntensity: 1.1 }), 0, 0.6, 0));
+      break;
+    }
+    case 'scepter': {
+      g.add(mesh(new THREE.CylinderGeometry(0.03, 0.03, 1.1, 6), mat(0xe8e2d0, { metalness: 0.6, roughness: 0.3 }), 0, -0.2, 0));
+      const r = mesh(new THREE.TorusGeometry(0.13, 0.02, 6, 16), accMat, 0, 0.42, 0);
+      g.add(r);
+      g.add(mesh(new THREE.SphereGeometry(0.06, 10, 8), mat(look.accent, { emissive: look.accent, emissiveIntensity: 1.2 }), 0, 0.42, 0));
+      break;
+    }
+    case 'tome': {
+      g.add(mesh(new THREE.BoxGeometry(0.22, 0.3, 0.07), mat(0x3a2230), 0, -0.05, 0.08));
+      g.add(mesh(new THREE.BoxGeometry(0.2, 0.28, 0.075), accMat, 0.012, -0.05, 0.08));
+      break;
+    }
+    case 'chalice': {
+      g.add(mesh(new THREE.CylinderGeometry(0.1, 0.04, 0.14, 10), mat(0xf2d36b, { metalness: 0.8, roughness: 0.25 }), 0, 0.02, 0.06));
+      g.add(mesh(new THREE.CylinderGeometry(0.015, 0.015, 0.12, 6), mat(0xf2d36b, { metalness: 0.8, roughness: 0.25 }), 0, -0.1, 0.06));
+      break;
+    }
+    case 'mirror': {
+      g.add(mesh(new THREE.CylinderGeometry(0.16, 0.16, 0.025, 16), mat(0xbfd8ff, { metalness: 0.95, roughness: 0.05, emissive: look.accent, emissiveIntensity: 0.3 }), 0, 0, 0.08));
+      break;
+    }
+    case 'compass': {
+      const a = mesh(new THREE.BoxGeometry(0.03, 0.7, 0.03), bladeMat, -0.05, -0.3, 0); a.rotation.z = 0.12; g.add(a);
+      const b = mesh(new THREE.BoxGeometry(0.03, 0.7, 0.03), bladeMat, 0.05, -0.3, 0); b.rotation.z = -0.12; g.add(b);
+      g.add(mesh(new THREE.SphereGeometry(0.05, 8, 6), accMat, 0, 0.04, 0));
+      break;
+    }
+    case 'pistol': {
+      g.add(mesh(new THREE.BoxGeometry(0.06, 0.16, 0.06), darkMat, 0, -0.06, 0));
+      g.add(mesh(new THREE.BoxGeometry(0.06, 0.07, 0.32), mat(0x3a3f55, { metalness: 0.7, roughness: 0.3 }), 0, -0.02, 0.14));
+      g.add(mesh(new THREE.BoxGeometry(0.065, 0.02, 0.2), accMat, 0, 0.02, 0.15));
+      break;
+    }
+    case 'bow': {
+      const arc = mesh(new THREE.TorusGeometry(0.62, 0.025, 6, 20, Math.PI * 0.9), mat(0xeae2c8, { metalness: 0.5, roughness: 0.35 }), 0, 0, 0);
+      arc.rotation.set(0, Math.PI / 2, Math.PI / 2 + Math.PI * 0.05);
+      g.add(arc);
+      g.add(mesh(new THREE.BoxGeometry(0.008, 1.18, 0.008), accMat, 0, 0, -0.32));
+      break;
+    }
+    case 'drone': {
+      g.add(mesh(new THREE.OctahedronGeometry(0.16), mat(0x3a3f55, { metalness: 0.8, roughness: 0.3 }), 0, 0, 0));
+      g.add(mesh(new THREE.SphereGeometry(0.06, 10, 8), mat(look.accent, { emissive: look.accent, emissiveIntensity: 1.3 }), 0, 0, 0.12));
+      const r = mesh(new THREE.TorusGeometry(0.24, 0.015, 6, 18), accMat, 0, 0, 0);
+      r.rotation.x = Math.PI / 2;
+      g.add(r);
+      break;
+    }
     default: break;
   }
   return g;
@@ -156,7 +279,15 @@ export function equipWeapon(parts, set, look) {
   if (s.L) {
     weaponL = createWeapon(s.L, look);
     if (s.L === 'shield') weaponL.position.set(0.1, 0.18, 0.05);
+    if (s.L === 'towerShield') weaponL.position.set(0.12, 0.1, 0.06);
+    if (s.L === 'bow') weaponL.position.set(0.02, 0, 0.05);
     parts.handL.add(weaponL);
+  }
+  if (s.back) {               // 드론: 어깨 위에 떠 있음
+    const d = createWeapon(s.back, look);
+    d.position.set(0.45, 0.55, -0.2);
+    parts.torso.add(d);
+    weaponL = d;
   }
   if (s.sheath) {
     const sheath = mesh(new THREE.BoxGeometry(0.06, 1.0, 0.09), mat(0x0d0e10), 0.25, -0.05, -0.05);

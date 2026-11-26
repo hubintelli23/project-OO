@@ -184,8 +184,8 @@ export class Party {
     if (input.wasPressed(KEYS.skill2)) this.trySkill('e', dir);
     if (input.wasPressed(KEYS.ult)) this.trySkill('r', dir);
     if (input.wasPressed(KEYS.swap)) this.trySwap();
-    // 권능 스킬 F — 근처에 줍거나 열 것이 있으면 상호작용이 우선 (main.js)
-    if (input.wasPressed(KEYS.interact) && !G.items.nearest(this.pos)) this.kit.tryPower();
+    // 권능 스킬 G (v1.7.0)
+    if (input.wasPressed(KEYS.power)) this.kit.tryPower();
 
     // 버퍼된 입력 처리
     if (this.buffer && this.canAct()) {
@@ -628,6 +628,7 @@ export class Party {
     // 제 3권능: 태그 시 지속 치유 + 정화
     if (prev.def.power === 3 || ch.def.power === 3) { this.heal(ch, ch.maxHp * 0.05); this.cleanse(); }
     // 지원 스킬 (kit.js) — 쿨타임 중이면 제 5권능은 기존 가속 참격
+    this.kit.onSwap(prev, ch);
     const assisted = forceIdx === null && this.kit.onSwapIn(ch);
     if (!assisted && ch.def.power === 5 && forceIdx === null) this.startMove(ENTRY_SLASH, 'entry', null);
   }
@@ -704,7 +705,7 @@ export class Party {
     G.sfx.play('hurt');
     this.hurtFlash = 0.15;
     // 경직 (슈퍼아머 기술 중에는 무시)
-    if (!(a?.kind === 'move' && a.def.superArmor)) {
+    if (!(a?.kind === 'move' && a.def.superArmor) && !this.kit.superArmor(ch)) {
       const away = new THREE.Vector3(this.pos.x - source.pos.x, 0, this.pos.z - source.pos.z).normalize();
       this.action = { kind: 'hurt', t: 0, dir: away };
       this.buffer = null;

@@ -3,7 +3,7 @@
 // =============================================================
 import { KEY_GUIDE, KEY_GUIDE_TOUCH, VERSION, GAME_TITLE, CAMERA_DEFAULT } from '../config.js';
 import { storageGet, storageSet } from '../core/utils.js';
-import { CHARACTERS, ROSTER, PARTY_ORDER, PARTY_SIZE } from '../data/characters.js';
+import { CHARACTERS, ROSTER, PARTY_ORDER, PARTY_SIZE, GROUPS } from '../data/characters.js';
 import { POWERS, powerColor, hex } from '../data/powers.js';
 
 const $ = id => document.getElementById(id);
@@ -99,6 +99,14 @@ export class Menu {
       this.G.sfx.play('ui');
       this.renderPartyEdit();
     });
+    this.peGroup = 'all';
+    $('pe-groups').addEventListener('click', e => {
+      const b = e.target.closest('[data-grp]');
+      if (!b) return;
+      this.peGroup = b.dataset.grp;
+      this.G.sfx.play('ui');
+      this.renderPartyEdit();
+    });
     $('pe-slots').addEventListener('click', e => {
       const b = e.target.closest('button[data-act]');
       if (!b) return;
@@ -138,14 +146,17 @@ export class Menu {
         <i class="pe-mv"><button data-act="left" data-i="${i}" ${i === 0 ? 'disabled' : ''}>◀</button><button data-act="right" data-i="${i}" ${i === ids.length - 1 ? 'disabled' : ''}>▶</button><button data-act="rm" data-i="${i}">✕</button></i></div>`;
     }).join('');
 
-    $('pe-grid').innerHTML = ROSTER.map(id => {
+    $('pe-groups').innerHTML = [{ id: 'all', name: `전체 ${ROSTER.length}` }, ...GROUPS].map(gr => `<button data-grp="${gr.id}" class="${this.peGroup === gr.id ? 'on' : ''}">${gr.name}</button>`).join('');
+    const list = this.peGroup === 'all' ? ROSTER : (GROUPS.find(gr => gr.id === this.peGroup)?.ids ?? ROSTER);
+    const groupName = id => GROUPS.find(gr => gr.ids.includes(id))?.name ?? '';
+    $('pe-grid').innerHTML = list.map(id => {
       const c = CHARACTERS[id];
       const at = ids.indexOf(id);
       return `<div class="pe-card ${at >= 0 ? 'on' : ''} ${this.peSel === id ? 'sel' : ''}" data-id="${id}" style="--c:${hex(powerColor(c.power, 1))}">
         ${at >= 0 ? `<i class="pe-no">${at + 1}</i>` : ''}
         <div class="pe-n">${shortName(id, g)}${c.provisional ? ' <small class="pe-tmp">일부 임시</small>' : ''}</div>
         <div class="pe-m">${c.role} · ${POWERS[c.power].name}</div>
-        <div class="pe-w">${c.weaponName}</div></div>`;
+        <div class="pe-w">${c.weaponName}</div><div class="pe-gname">${groupName(id)}</div></div>`;
     }).join('');
 
     const c = CHARACTERS[this.peSel];
@@ -155,7 +166,7 @@ export class Menu {
         <div class="pe-i-s">${c.role} · ${POWERS[c.power].name}(${POWERS[c.power].god}) · HP ${c.stats.hp} · 공격 ${c.stats.atk} · 방어 ${c.stats.def}</div>
         <div class="pe-i-p"><b>${c.passive.name}</b> — ${c.passive.desc}</div>
         <div class="pe-i-k"><span><kbd>Q</kbd> ${sk.q.name}</span><span><kbd>E</kbd> ${sk.e.name}</span><span><kbd>R</kbd> ${sk.r.name}</span></div>
-        ${c.provisional ? '<div class="pe-i-n">※ 기획 문서가 기본 공격 4타에서 끝나, 이름에 (임시)가 붙은 기술은 임시 구성입니다.</div>' : ''}`;
+        ${c.provisional ? '<div class="pe-i-n">※ 기획 문서에 없는 기술(강공격·점프·특수공격 등)은 이름에 (임시)를 붙인 임시 구성입니다.</div>' : ''}`;
     }
     const full = ids.length === PARTY_SIZE;
     $('btn-pe-close').disabled = !full;

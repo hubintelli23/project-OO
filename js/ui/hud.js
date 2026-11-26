@@ -59,7 +59,7 @@ export class Hud {
     const s = this.el.skills;
     s.innerHTML = '';
     this.skillUi = {};
-    [['q', 'Q'], ['e', 'E'], ['r', 'R'], ['f', 'F']].forEach(([k, label]) => {
+    [['q', 'Q'], ['e', 'E'], ['r', 'R'], ['f', 'G']].forEach(([k, label]) => {
       const d = document.createElement('div');
       d.className = 'sk' + (k === 'r' ? ' ult' : '') + (k === 'f' ? ' pw' : '');
       d.dataset.act = `key:Key${label}`; // 휴대폰: 스킬 아이콘을 눌러 사용
@@ -85,7 +85,7 @@ export class Hud {
       u.glyph.textContent = glyphs[k];
       u.root.style.setProperty('--c', hex(powerColor(ch.def.power, k === 'r' ? 2 : 1)));
     }
-    // 권능 스킬 F
+    // 권능 스킬 G
     const pw = KITS[ch.id]?.power;
     const uf = this.skillUi.f;
     uf.root.style.display = pw ? '' : 'none';
@@ -129,7 +129,7 @@ export class Hud {
     ur.cd.style.height = '0%';
     ur.cdt.textContent = uk >= 1 ? '' : `${Math.floor(uk * 100)}`;
 
-    // 권능 스킬 F
+    // 권능 스킬 G
     const uf = this.skillUi.f;
     const aw = P.kit.awakenFor(ch);
     const pk = aw ? aw.t / aw.max : ch.power / COMBAT.powerMax;

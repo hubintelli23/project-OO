@@ -13,6 +13,7 @@
 // =============================================================
 
 import { EXTRA_CHARACTERS } from './characters-extra.js';
+import { DOC_BUILT, DOC_IDS } from './doc-builder.js';
 
 const slash = (tilt, radius = 2.4, len = 150, extra = {}) => ({ type: 'slash', tilt, radius, len, ...extra });
 
@@ -151,9 +152,25 @@ export const CHARACTERS = {
 
 // 문서의 추가 캐릭터 6명 합류
 Object.assign(CHARACTERS, EXTRA_CHARACTERS);
+// 등장인물 능력 수정본의 나머지 30명 (v1.7.0 — js/data/characters-doc.js + doc-builder.js)
+for (const id of DOC_IDS) CHARACTERS[id] = DOC_BUILT[id].def;
 
 /** 편성 화면에 나오는 순서 */
-export const ROSTER = ['kain', 'sien', 'ria', 'iris', 'charl', 'noa', 'cael', 'lucian', 'beatrice'];
+export const ROSTER = ['kain', 'sien', 'ria', 'iris', 'charl', 'noa', 'cael', 'lucian', 'beatrice', ...DOC_IDS];
+/** 소속 (편성 화면 분류) */
+export const GROUPS = [
+  { id: 'border', name: '경계의 동반자', ids: ['kain', 'ria', 'sien'] },
+  { id: 'moon', name: '현월기사단', ids: ['iris', 'charl', 'noa', 'cael'] },
+  { id: 'council', name: '학생중앙회', ids: ['lucian', 'beatrice', 'tristan', 'chloe'] },
+  { id: 'student', name: '재학생연합', ids: ['ethan', 'leo', 'myla', 'olivia'] },
+  { id: 'faculty', name: '교직원', ids: ['balder', 'genesis', 'selena', 'sigmund'] },
+  { id: 'sunAltar', name: '성휘제단', ids: ['argent', 'seraphina', 'cassian'] },
+  { id: 'moonAltar', name: '월영제단', ids: ['lumiera', 'aiden', 'mirea'] },
+  { id: 'dusk', name: '황혼제단', ids: ['velian', 'ravien', 'elysia'] },
+  { id: 'gloom', name: '그믐제단', ids: ['morven', 'nivella', 'orpel'] },
+  { id: 'sunKnight', name: '성휘기사단', ids: ['gabriela', 'aurelius', 'serstia', 'rafiel'] },
+  { id: 'moonKnight', name: '월영기사단', ids: ['velibar', 'morgana', 'zahik', 'lilith'] },
+];
 /** 기본 편성 (저장된 편성이 없을 때) */
 export const PARTY_ORDER = ['kain', 'sien', 'ria'];
 export const PARTY_SIZE = 3;

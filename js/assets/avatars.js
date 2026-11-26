@@ -10,6 +10,7 @@ import { mat, mesh } from './common.js';
 import { equipWeapon } from './weapons.js';
 import { ASSET_MANIFEST } from './manifest.js';
 import { attachModel } from './loader.js';
+import { DOC_BUILT } from '../data/doc-builder.js';
 
 // 아바타 외형 표 — 플레이어블 + 적
 export const AVATARS = {
@@ -44,6 +45,9 @@ export const AVATARS = {
   boss: { name: '집행관 오르펠 네크리온', weapon: 'greatsword', hood: true, glowEyes: true, scale: 1.9, cape: true,
     look: { outfit: 0x141218, accent: 0x8a1328, pants: 0x111115, skin: 0x9a8f99, eye: 0x8a1328, hair: 0x141218, blade: 0xbbbbcc, shoes: 0x0b0b0d } },
 };
+
+// 등장인물 능력 수정본 30명 — 외형 색은 임시 (권능 색 + 소속 의상, doc-builder.js). 여기에 같은 id로 적으면 덮어씀
+for (const [id, b] of Object.entries(DOC_BUILT)) if (!AVATARS[id]) AVATARS[id] = b.avatar;
 
 /** 아바타 id로 모델 생성 (외형 표 + manifest GLB 적용) */
 export function buildAvatar(id) {
